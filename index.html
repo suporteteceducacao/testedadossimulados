@@ -16,32 +16,22 @@
     <style>
         :root { --sidebar-width: 280px; --primary: #2563eb; --dark-navy: #0f172a; }
         body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; transition: 0.3s; }
-        
-        /* Sidebar Retrátil */
         #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background: var(--dark-navy); color: white; z-index: 1050; transition: 0.3s; }
         #sidebar.collapsed { width: 80px; }
         #sidebar.collapsed .sidebar-text, #sidebar.collapsed .footer-text { display: none; }
-        
         .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
         .main-content.expanded { margin-left: 80px; }
-
         .card-stat { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
         .chart-card { background: white; border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative; }
         .chart-container { height: 650px; position: relative; margin-top: 1rem; }
-        
         .nav-link-custom { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); display: block; text-decoration: none; transition: 0.2s; }
         .nav-link-custom.active, .nav-link-custom:hover { background: rgba(255,255,255,0.1); color: white; }
-        
         .toggle-btn { background: none; border: none; color: white; padding: 20px; width: 100%; text-align: left; cursor: pointer; outline: none !important; }
         .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 400px; border: 2px solid var(--primary); }
-        
         .btn-download { position: absolute; top: 15px; right: 15px; z-index: 10; border-radius: 8px; font-size: 0.8rem; }
-        
         footer { margin-top: auto; padding: 2rem 0; text-align: center; color: #64748b; font-size: 0.9rem; border-top: 1px solid #e2e8f0; }
-
         .tab-content > .tab-pane { display: block; height: 0; overflow: hidden; }
         .tab-content > .active { height: auto; overflow: visible; }
-        
         .table-custom { font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
         .table-custom thead { background: var(--dark-navy); color: white; }
     </style>
@@ -151,18 +141,15 @@
             try {
                 const [resC, resI, resA] = await Promise.all([fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')]);
                 const categ = await resC.json(); const itens = await resI.json(); const analise = await resA.json();
-                
                 rawData.categ = categ;
                 rawData.analise = analise;
                 itens.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
-                
                 const f = document.getElementById('themeFilter');
                 f.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
                 categ.forEach(c => f.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
-                
                 processar(analise);
             } catch (e) {
-                console.error("Erro ao carregar JSONs. Certifique-se de estar usando um servidor local.");
+                console.error("Erro ao carregar JSONs.");
             }
         }
 
@@ -171,7 +158,6 @@
             const activeKeys = keys || Object.keys(data[0]).filter(k => !isNaN(parseInt(k))).map(nK);
             const N = data.length;
             let sumG = 0, countG = 0;
-
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
                 data.forEach(r => {
@@ -188,7 +174,6 @@
                     media: m.toFixed(2), dp: dp.toFixed(2)
                 };
             });
-
             document.getElementById('valN').innerText = N;
             document.getElementById('valAlpha').innerText = calculateAlpha(data, activeKeys);
             document.getElementById('valMean').innerText = (sumG/countG || 0).toFixed(2);
@@ -219,8 +204,9 @@
                 indexAxis: 'y', maintainAspectRatio: false, 
                 plugins: { 
                     datalabels: { 
-                        color: (c) => [2, 1].includes(c.datasetIndex) && c.chart.canvas.id !== 'chartBar' ? '#000' : 
-                                      (c.chart.canvas.id === 'chartBar' && c.datasetIndex === 2 ? '#000' : '#fff'),
+                        // Alteração: Apenas o Neutro (datasetIndex 2) é preto. 
+                        // Discordo Total (0) e Discordo (1) agora são brancos.
+                        color: (c) => c.datasetIndex === 2 ? '#000' : '#fff',
                         formatter: v => v === 0 ? '' : Math.abs(v)+'%' 
                     } 
                 }, 
@@ -230,7 +216,6 @@
                 } 
             };
 
-            // 1. Detalhado
             charts.chartFull = new Chart(ctx('chartFull'), { type: 'bar', data: { labels, datasets: [
                 { label: 'Discordo Total', data: stats.map(s => -s.dt), backgroundColor: colors[0] },
                 { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: colors[1] },
@@ -239,14 +224,12 @@
                 { label: 'Concordo Total', data: stats.map(s => s.ct), backgroundColor: colors[4] }
             ]}, options: commonOpt });
 
-            // 2. Simplificado (Sem sinal de negativo no label)
             charts.chartSimp = new Chart(ctx('chartSimp'), { type: 'bar', data: { labels, datasets: [
                 { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: colors[0] },
                 { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
                 { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: colors[4] }
             ]}, options: commonOpt });
 
-            // 3. Acumulado (Barras proporcionais e positivas)
             charts.chartBar = new Chart(ctx('chartBar'), { type: 'bar', data: { labels, datasets: [
                 { label: 'D. Total', data: stats.map(s => s.dt), backgroundColor: colors[0] },
                 { label: 'Discordo', data: stats.map(s => s.d), backgroundColor: colors[1] },
@@ -265,7 +248,6 @@
                 const m = vls.length ? (vls.reduce((a,b)=>a+b,0)/vls.length).toFixed(2) : "0.00";
                 bE.innerHTML += `<tr><td>${c.Eixo}</td><td>${c.Tema}</td><td class="fw-bold">${calculateAlpha(data, ks)}</td><td>${m}</td></tr>`;
             });
-
             const bI = document.getElementById('body-itens'); bI.innerHTML = '';
             stats.forEach(s => {
                 bI.innerHTML += `<tr><td>${s.id}</td><td class="small">${s.texto}</td><td>${s.media}</td><td>${s.dp}</td></tr>`;
@@ -299,7 +281,6 @@
             doc.autoTable({ html: '#table-itens', startY: 20, headStyles: {fillColor: [15, 23, 42]} });
             doc.save("Relatorio_Completo.pdf");
         }
-
         window.onload = loadData;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
