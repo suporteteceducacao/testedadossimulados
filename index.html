@@ -3,39 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Pro | Automação JSON</title>
+    <title>Analytics Pro | Dynamic JSON</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root { --sidebar-width: 280px; --primary: #2563eb; --dark-navy: #0f172a; }
         body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; transition: 0.3s; }
-        
         #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background: var(--dark-navy); color: white; z-index: 1050; transition: 0.3s; }
         #sidebar.collapsed { width: 80px; }
         #sidebar.collapsed .sidebar-text { display: none; }
-        
-        .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
+        .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; transition: 0.3s; }
         .main-content.expanded { margin-left: 80px; }
-
         .card-stat { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
         .chart-card { background: white; border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative; }
-        .chart-container { height: 600px; position: relative; margin-top: 1rem; }
-        
-        .nav-link-custom { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); transition: 0.2s; display: block; text-decoration: none; }
-        .nav-link-custom.active, .nav-link-custom:hover { background: rgba(255,255,255,0.1); color: white; }
-        
-        .toggle-btn { background: none; border: none; color: white; padding: 20px; width: 100%; text-align: left; cursor: pointer; }
+        .chart-container { height: 600px; position: relative; }
+        .nav-link-custom { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); display: block; text-decoration: none; }
+        .nav-link-custom.active { background: rgba(255,255,255,0.1); color: white; }
         .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 400px; border: 2px solid var(--primary); }
-        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; background: #dcfce7; color: #166534; font-weight: bold; }
-        
-        /* Ajuste para garantir que abas escondidas não quebrem o Chart.js */
+        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
+        .status-loading { background: #fef9c3; color: #854d0e; }
+        .status-success { background: #dcfce7; color: #166534; }
+        .status-error { background: #fee2e2; color: #991b1b; }
         .tab-content > .tab-pane { display: block; height: 0; overflow: hidden; }
         .tab-content > .active { height: auto; overflow: visible; }
     </style>
@@ -44,68 +37,48 @@
 
     <aside id="sidebar">
         <div class="p-4 d-flex align-items-center gap-3">
-            <i class="fas fa-robot fa-2x text-primary"></i>
-            <span class="fs-4 fw-bold sidebar-text">Analytics Auto</span>
+            <i class="fas fa-database fa-2x text-primary"></i>
+            <span class="fs-4 fw-bold sidebar-text">Analytics JSON</span>
         </div>
         <nav class="nav flex-column mt-3">
-            <a href="#" class="nav-link-custom active"><i class="fas fa-sync me-3"></i> <span class="sidebar-text">Dashboard Automático</span></a>
-            <button class="nav-link-custom" onclick="window.location.reload()"><i class="fas fa-redo me-3"></i> <span class="sidebar-text">Recarregar JSON</span></button>
+            <a href="#" class="nav-link-custom active"><i class="fas fa-chart-pie me-3"></i> <span class="sidebar-text">Dashboard</span></a>
+            <div class="p-3 sidebar-text">
+                <label class="small text-muted mb-2 d-block">Carregamento Manual:</label>
+                <input type="file" id="manualJson" class="form-control form-control-sm" multiple accept=".json">
+                <small class="text-muted mt-1 d-block" style="font-size: 0.7rem;">Selecione categ3, itens3 e analise3 juntos.</small>
+            </div>
         </nav>
-        <button class="toggle-btn position-absolute bottom-0" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i> <span class="sidebar-text ms-3">Recolher Menu</span>
-        </button>
     </aside>
 
     <main class="main-content" id="main-content">
         <header class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-bold mb-0">Análise Dinâmica</h2>
-                <div class="d-flex align-items-center gap-2 mt-1">
-                    <span class="status-badge" id="dataStatus">Aguardando Servidor...</span>
-                </div>
+                <h2 class="fw-bold mb-0">Análise de Dados</h2>
+                <span id="dataStatus" class="status-badge status-loading">Tentando conexão local...</span>
             </div>
             <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
         </header>
 
         <div class="row g-4 mb-5">
-            <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">Nº DE RESPOSTAS</small><h2 id="valN" class="display-5 fw-bold">0</h2></div></div>
-            <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">ALFA DE CRONBACH</small><h2 id="valAlpha" class="display-5 fw-bold text-danger">0.00</h2></div></div>
+            <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">Nº RESPOSTAS</small><h2 id="valN" class="display-5 fw-bold">0</h2></div></div>
+            <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">ALFA CRONBACH</small><h2 id="valAlpha" class="display-5 fw-bold text-danger">0.00</h2></div></div>
             <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">MÉDIA GLOBAL</small><h2 id="valMean" class="display-5 fw-bold text-success">0.00</h2></div></div>
         </div>
 
-        <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-full" type="button">Divergente Detalhado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-simp" type="button">Simplificado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-bar" type="button">Acumulado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-rel" type="button">Relatórios</button></li>
+        <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs">
+            <li class="nav-item"><button class="nav-link active shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-full">Divergente Detalhado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-simp">Simplificado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-bar">Acumulado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-rel">Eixos</button></li>
         </ul>
 
-        <div class="tab-content" id="dashboardTabsContent">
-            <div class="tab-pane fade show active" id="tab-full" role="tabpanel">
-                <div class="chart-card" id="cap-full">
-                    <div class="chart-container"><canvas id="chartFull"></canvas></div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-simp" role="tabpanel">
-                <div class="chart-card" id="cap-simp">
-                    <div class="chart-container"><canvas id="chartSimp"></canvas></div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-bar" role="tabpanel">
-                <div class="chart-card" id="cap-bar">
-                    <div class="chart-container"><canvas id="chartBar"></canvas></div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-rel" role="tabpanel">
-                <div class="chart-card shadow-sm">
-                    <h5 class="fw-bold mb-4">Consistência por Eixo</h5>
-                    <table class="table align-middle" id="table-eixos">
-                        <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa Cronbach</th><th>Média</th></tr></thead>
-                        <tbody id="body-eixos"></tbody>
-                    </table>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-full"><div class="chart-card"><div class="chart-container"><canvas id="chartFull"></canvas></div></div></div>
+            <div class="tab-pane fade" id="tab-simp"><div class="chart-card"><div class="chart-container"><canvas id="chartSimp"></canvas></div></div></div>
+            <div class="tab-pane fade" id="tab-bar"><div class="chart-card"><div class="chart-container"><canvas id="chartBar"></canvas></div></div></div>
+            <div class="tab-pane fade" id="tab-rel">
+                <div class="chart-card p-4">
+                    <table class="table"><thead class="table-light"><tr><th>Eixo</th><th>Tema</th><th>Alfa</th></tr></thead><tbody id="body-eixos"></tbody></table>
                 </div>
             </div>
         </div>
@@ -116,179 +89,144 @@
         let charts = {};
         let rawData = { analise: [], categ: [], itens: {} };
 
-        // 1. CARREGAMENTO DOS JSONs
-        async function loadData() {
+        // Tenta carregar automaticamente via Fetch (Funciona em Servidor/Live Server)
+        async function autoLoad() {
             try {
-                const [resCateg, resItens, resAnalise] = await Promise.all([
-                    fetch('categ3.json'),
-                    fetch('itens3.json'),
-                    fetch('analise3.json')
-                ]);
-
-                if (!resCateg.ok || !resItens.ok || !resAnalise.ok) throw new Error("Falha ao ler arquivos");
-
-                const categData = await resCateg.json();
-                const itensRaw = await resItens.json();
-                rawData.analise = await resAnalise.json();
-                rawData.categ = categData;
-
-                itensRaw.forEach(r => { rawData.itens[String(parseInt(r.item))] = r.texto; });
-
-                const filter = document.getElementById('themeFilter');
-                filter.innerHTML = '<option value="ALL">TODOS OS EIXOS</option>';
-                categData.forEach(c => filter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
-
-                document.getElementById('dataStatus').innerText = "Conectado: JSON Ativo";
-                processar(rawData.analise);
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('dataStatus').innerText = "Erro: Arquivos não encontrados";
-                document.getElementById('dataStatus').style.background = "#fee2e2";
+                const [resC, resI, resA] = await Promise.all([fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')]);
+                if(resC.ok) {
+                    const c = await resC.json(); const i = await resI.json(); const a = await resA.json();
+                    setupData(c, i, a);
+                    updateBadge("Sucesso: JSON Carregado", "status-success");
+                } else { throw new Error(); }
+            } catch (e) {
+                updateBadge("Aguardando upload manual (CORS)", "status-error");
             }
         }
 
-        // 2. PROCESSAMENTO
-        function processar(data, filteredKeys = null) {
-            const nK = (k) => String(parseInt(k, 10));
-            const allKeys = Object.keys(data[0]).filter(k => !isNaN(k) || (typeof k === 'string' && !isNaN(parseInt(k)))).map(k => nK(k));
-            const activeKeys = filteredKeys || allKeys;
+        // Processa os dados (seja via Fetch ou via Upload manual)
+        function setupData(categ, itens, analise) {
+            rawData.categ = categ;
+            rawData.analise = analise;
+            itens.forEach(it => rawData.itens[String(it.item)] = it.texto);
+            
+            const f = document.getElementById('themeFilter');
+            f.innerHTML = '<option value="ALL">TODOS OS EIXOS</option>';
+            categ.forEach(c => f.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
+            
+            processar(analise);
+        }
+
+        // Carregamento Manual (Solução para quando não há servidor)
+        document.getElementById('manualJson').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            let c, i, a;
+            for(let file of files) {
+                const text = await file.text();
+                const json = JSON.parse(text);
+                if(file.name.includes('categ')) c = json;
+                if(file.name.includes('itens')) i = json;
+                if(file.name.includes('analise')) a = json;
+            }
+            if(c && i && a) {
+                setupData(c, i, a);
+                updateBadge("Manual: Dados Ativos", "status-success");
+            } else {
+                alert("Por favor, selecione os 3 arquivos JSON (categ3, itens3 e analise3).");
+            }
+        });
+
+        function updateBadge(txt, cls) {
+            const b = document.getElementById('dataStatus');
+            b.innerText = txt; b.className = "status-badge " + cls;
+        }
+
+        function processar(data, keys = null) {
+            const nK = (k) => String(parseInt(k));
+            const activeKeys = keys || Object.keys(data[0]).filter(k => !isNaN(parseInt(k))).map(nK);
             const N = data.length;
-            let sG = 0, cG = 0;
+            let sumG = 0, countG = 0;
 
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
                 data.forEach(r => {
-                    const v = parseInt(r[k] || r[k.padStart(2,'0')]);
-                    if(f[v] !== undefined) { f[v]++; sG += v; cG++; vls.push(v); }
+                    const v = parseInt(r[k]);
+                    if(f[v] !== undefined) { f[v]++; sumG += v; countG++; vls.push(v); }
                 });
-                const mean = vls.length ? (vls.reduce((a,b)=>a+b,0)/vls.length) : 0;
                 return {
                     id: k, texto: rawData.itens[k] || `Questão ${k}`,
                     dt: (f[1]/N*100).toFixed(1), d: (f[2]/N*100).toFixed(1), n: (f[3]/N*100).toFixed(1),
                     c: (f[4]/N*100).toFixed(1), ct: (f[5]/N*100).toFixed(1),
-                    neg: ((f[1]+f[2])/N*100).toFixed(1), pos: ((f[4]+f[5])/N*100).toFixed(1),
-                    media: mean.toFixed(2)
+                    neg: ((f[1]+f[2])/N*100).toFixed(1), pos: ((f[4]+f[5])/N*100).toFixed(1)
                 };
             });
 
             document.getElementById('valN').innerText = N;
             document.getElementById('valAlpha').innerText = calculateAlpha(data, activeKeys);
-            document.getElementById('valMean').innerText = (sG/cG || 0).toFixed(2);
-            
+            document.getElementById('valMean').innerText = (sumG/countG || 0).toFixed(2);
             renderCharts(stats);
-            renderTableEixos(data);
+            renderTable(data);
         }
 
-        // 3. GRÁFICOS
-        function renderCharts(stats) {
-            const colors = ['#dc2626', '#f87171', '#e2e8f0', '#60a5fa', '#2563eb'];
-            const labels = stats.map(s => s.texto);
-            
-            const gCtx = (id) => { 
-                if(charts[id]) charts[id].destroy(); 
-                return document.getElementById(id).getContext('2d'); 
-            };
-
-            const commonOptions = {
-                indexAxis: 'y', maintainAspectRatio: false,
-                plugins: { 
-                    legend: { position: 'bottom' },
-                    datalabels: { color: (ctx) => ctx.datasetIndex === 2 || (id==='chartSimp'&&ctx.datasetIndex===1) ? '#000' : '#fff', formatter: v => v === 0 ? '' : Math.abs(v)+'%' }
-                },
-                scales: { x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v)+'%' } }, y: { stacked: true, grid: { display: false } } }
-            };
-
-            // Full Divergente
-            charts.chartFull = new Chart(gCtx('chartFull'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Discordo Total', data: stats.map(s => -s.dt), backgroundColor: colors[0] },
-                        { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: colors[1] },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
-                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: colors[3] },
-                        { label: 'Concordo Total', data: stats.map(s => s.ct), backgroundColor: colors[4] }
-                    ]
-                },
-                options: commonOptions
-            });
-
-            // Simplificado
-            charts.chartSimp = new Chart(gCtx('chartSimp'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: '#ef4444' },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: '#e2e8f0' },
-                        { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: '#2563eb' }
-                    ]
-                },
-                options: {
-                    ...commonOptions,
-                    plugins: { ...commonOptions.plugins, datalabels: { ...commonOptions.plugins.datalabels, color: (ctx) => ctx.datasetIndex === 1 ? '#000' : '#fff' }}
-                }
-            });
-
-            // Acumulado
-            charts.chartBar = new Chart(gCtx('chartBar'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'DT', data: stats.map(s => s.dt), backgroundColor: colors[0] },
-                        { label: 'D', data: stats.map(s => s.d), backgroundColor: colors[1] },
-                        { label: 'N', data: stats.map(s => s.n), backgroundColor: colors[2] },
-                        { label: 'C', data: stats.map(s => s.c), backgroundColor: colors[3] },
-                        { label: 'CT', data: stats.map(s => s.ct), backgroundColor: colors[4] }
-                    ]
-                },
-                options: { ...commonOptions, indexAxis: 'x', scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
-            });
-        }
-
-        // 4. ALFA E TABELA
         function calculateAlpha(data, keys) {
-            if (keys.length <= 1) return "0.00";
+            if(keys.length <= 1) return "0.00";
             const k = keys.length;
             const itemVars = keys.map(key => {
-                const vals = data.map(r => parseFloat(r[key] || r[key.padStart(2,'0')])).filter(v => !isNaN(v));
-                const m = vals.reduce((a, b) => a + b, 0) / vals.length;
-                return vals.reduce((a, b) => a + Math.pow(b - m, 2), 0) / vals.length;
+                const vals = data.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+                const m = vals.reduce((a,b)=>a+b,0)/vals.length;
+                return vals.reduce((a,b)=>a+Math.pow(b-m,2),0)/vals.length;
             });
-            const totals = data.map(r => keys.reduce((s, k) => s + (parseFloat(r[k] || r[k.padStart(2,'0')]) || 0), 0));
-            const tMean = totals.reduce((a, b) => a + b, 0) / totals.length;
-            const tVar = totals.reduce((a, b) => a + Math.pow(b - tMean, 2), 0) / totals.length;
+            const totals = data.map(r => keys.reduce((s,k) => s + (parseFloat(r[k])||0),0));
+            const tVar = totals.reduce((a,b,i,arr)=>a+Math.pow(b-(totals.reduce((x,y)=>x+y,0)/arr.length),2),0)/totals.length;
             return tVar === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tVar))).toFixed(2);
         }
 
-        function renderTableEixos(data) {
-            const bE = document.getElementById('body-eixos'); bE.innerHTML = '';
+        function renderCharts(stats) {
+            const colors = ['#dc2626', '#f87171', '#e2e8f0', '#60a5fa', '#2563eb'];
+            const labels = stats.map(s => s.texto);
+            const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
+            const opt = { indexAxis: 'y', maintainAspectRatio: false, plugins: { datalabels: { color: (c) => c.datasetIndex === 2 ? '#000' : '#fff', formatter: v => v === 0 ? '' : Math.abs(v)+'%' } }, scales: { x: { stacked: true, grid: {display: false}, ticks: {callback: v => Math.abs(v)+'%'} }, y: { stacked: true, grid: {display: false} } } };
+
+            charts.chartFull = new Chart(ctx('chartFull'), { type: 'bar', data: { labels, datasets: [
+                { label: 'DT', data: stats.map(s => -s.dt), backgroundColor: colors[0] },
+                { label: 'D', data: stats.map(s => -s.d), backgroundColor: colors[1] },
+                { label: 'N', data: stats.map(s => s.n), backgroundColor: colors[2] },
+                { label: 'C', data: stats.map(s => s.c), backgroundColor: colors[3] },
+                { label: 'CT', data: stats.map(s => s.ct), backgroundColor: colors[4] }
+            ]}, options: opt });
+
+            charts.chartSimp = new Chart(ctx('chartSimp'), { type: 'bar', data: { labels, datasets: [
+                { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: colors[0] },
+                { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
+                { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: colors[4] }
+            ]}, options: { ...opt, plugins: { datalabels: { color: (c) => c.datasetIndex === 1 ? '#000' : '#fff' } } } });
+
+            charts.chartBar = new Chart(ctx('chartBar'), { type: 'bar', data: { labels, datasets: [
+                { label: 'DT', data: stats.map(s => s.dt), backgroundColor: colors[0] },
+                { label: 'D', data: stats.map(s => s.d), backgroundColor: colors[1] },
+                { label: 'N', data: stats.map(s => s.n), backgroundColor: colors[2] },
+                { label: 'C', data: stats.map(s => s.c), backgroundColor: colors[3] },
+                { label: 'CT', data: stats.map(s => s.ct), backgroundColor: colors[4] }
+            ]}, options: { ...opt, indexAxis: 'x', scales: { y: { stacked: true, max: 100 } } } });
+        }
+
+        function renderTable(data) {
+            const b = document.getElementById('body-eixos'); b.innerHTML = '';
             rawData.categ.forEach(c => {
                 const ks = c.Questões.split(',').map(s => String(parseInt(s.trim())));
-                bE.innerHTML += `<tr><td>${c.Eixo}</td><td>${c.Tema}</td><td class="fw-bold text-danger">${calculateAlpha(data, ks)}</td><td>---</td></tr>`;
+                b.innerHTML += `<tr><td>${c.Eixo}</td><td>${c.Tema}</td><td>${calculateAlpha(data, ks)}</td></tr>`;
             });
         }
 
         function applyFilter() {
-            const val = document.getElementById('themeFilter').value;
-            if (val === 'ALL') processar(rawData.analise);
+            const v = document.getElementById('themeFilter').value;
+            if(v === 'ALL') processar(rawData.analise);
             else {
-                const c = rawData.categ.find(x => x.Eixo === val);
-                const keys = c.Questões.split(',').map(s => String(parseInt(s.trim())));
-                processar(rawData.analise, keys);
+                const c = rawData.categ.find(x => x.Eixo === v);
+                processar(rawData.analise, c.Questões.split(',').map(s => String(parseInt(s.trim()))));
             }
         }
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('main-content').classList.toggle('expanded');
-            setTimeout(() => { Object.values(charts).forEach(c => c.resize()); }, 350);
-        }
-
-        window.onload = loadData;
+        window.onload = autoLoad;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
