@@ -26,14 +26,18 @@
 
         .card-stat { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
         .chart-card { background: white; border-radius: 24px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative; }
-        .chart-container { height: 600px; position: relative; }
+        .chart-container { height: 600px; position: relative; margin-top: 1rem; }
         
-        .nav-link { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); transition: 0.2s; }
-        .nav-link.active, .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-link-custom { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); transition: 0.2s; display: block; text-decoration: none; }
+        .nav-link-custom.active, .nav-link-custom:hover { background: rgba(255,255,255,0.1); color: white; }
         
         .toggle-btn { background: none; border: none; color: white; padding: 20px; width: 100%; text-align: left; cursor: pointer; }
         .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 400px; border: 2px solid var(--primary); }
-        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; background: #dcfce7; color: #166534; }
+        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; background: #dcfce7; color: #166534; font-weight: bold; }
+        
+        /* Ajuste para garantir que abas escondidas não quebrem o Chart.js */
+        .tab-content > .tab-pane { display: block; height: 0; overflow: hidden; }
+        .tab-content > .active { height: auto; overflow: visible; }
     </style>
 </head>
 <body>
@@ -44,8 +48,8 @@
             <span class="fs-4 fw-bold sidebar-text">Analytics Auto</span>
         </div>
         <nav class="nav flex-column mt-3">
-            <button class="nav-link active"><i class="fas fa-sync me-3"></i> <span class="sidebar-text">Leitura Automática</span></button>
-            <button class="nav-link" onclick="window.location.reload()"><i class="fas fa-redo me-3"></i> <span class="sidebar-text">Atualizar Dados</span></button>
+            <a href="#" class="nav-link-custom active"><i class="fas fa-sync me-3"></i> <span class="sidebar-text">Dashboard Automático</span></a>
+            <button class="nav-link-custom" onclick="window.location.reload()"><i class="fas fa-redo me-3"></i> <span class="sidebar-text">Recarregar JSON</span></button>
         </nav>
         <button class="toggle-btn position-absolute bottom-0" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i> <span class="sidebar-text ms-3">Recolher Menu</span>
@@ -55,10 +59,9 @@
     <main class="main-content" id="main-content">
         <header class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-bold mb-0">Dashboard Dinâmico</h2>
+                <h2 class="fw-bold mb-0">Análise Dinâmica</h2>
                 <div class="d-flex align-items-center gap-2 mt-1">
-                    <span class="status-badge" id="dataStatus">Carregando JSON...</span>
-                    <p class="text-muted mb-0 small">Fontes: categ3.json, itens3.json, analise3.json</p>
+                    <span class="status-badge" id="dataStatus">Aguardando Servidor...</span>
                 </div>
             </div>
             <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
@@ -70,30 +73,37 @@
             <div class="col-md-4"><div class="card card-stat p-4 text-center"><small class="text-muted fw-bold">MÉDIA GLOBAL</small><h2 id="valMean" class="display-5 fw-bold text-success">0.00</h2></div></div>
         </div>
 
-        <ul class="nav nav-pills mb-4 gap-2">
-            <li class="nav-item"><button class="nav-link active shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-full">Divergente Detalhado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-simp">Simplificado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-bar">Acumulado</button></li>
-            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-rel">Relatórios</button></li>
+        <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-full" type="button">Divergente Detalhado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-simp" type="button">Simplificado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-bar" type="button">Acumulado</button></li>
+            <li class="nav-item"><button class="nav-link shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-rel" type="button">Relatórios</button></li>
         </ul>
 
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-full">
+        <div class="tab-content" id="dashboardTabsContent">
+            <div class="tab-pane fade show active" id="tab-full" role="tabpanel">
                 <div class="chart-card" id="cap-full">
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="tab-simp">
-                <div class="chart-card" id="cap-simp"><div class="chart-container"><canvas id="chartSimp"></canvas></div></div>
+
+            <div class="tab-pane fade" id="tab-simp" role="tabpanel">
+                <div class="chart-card" id="cap-simp">
+                    <div class="chart-container"><canvas id="chartSimp"></canvas></div>
+                </div>
             </div>
-            <div class="tab-pane fade" id="tab-bar">
-                <div class="chart-card" id="cap-bar"><div class="chart-container"><canvas id="chartBar"></canvas></div></div>
+
+            <div class="tab-pane fade" id="tab-bar" role="tabpanel">
+                <div class="chart-card" id="cap-bar">
+                    <div class="chart-container"><canvas id="chartBar"></canvas></div>
+                </div>
             </div>
-            <div class="tab-pane fade" id="tab-rel">
+
+            <div class="tab-pane fade" id="tab-rel" role="tabpanel">
                 <div class="chart-card shadow-sm">
-                    <h5 class="fw-bold mb-4">Consistência Interna por Eixo</h5>
-                    <table class="table" id="table-eixos">
-                        <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead>
+                    <h5 class="fw-bold mb-4">Consistência por Eixo</h5>
+                    <table class="table align-middle" id="table-eixos">
+                        <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa Cronbach</th><th>Média</th></tr></thead>
                         <tbody id="body-eixos"></tbody>
                     </table>
                 </div>
@@ -106,7 +116,7 @@
         let charts = {};
         let rawData = { analise: [], categ: [], itens: {} };
 
-        // 1. CARREGAMENTO AUTOMÁTICO DOS ARQUIVOS JSON
+        // 1. CARREGAMENTO DOS JSONs
         async function loadData() {
             try {
                 const [resCateg, resItens, resAnalise] = await Promise.all([
@@ -115,34 +125,33 @@
                     fetch('analise3.json')
                 ]);
 
-                const categ = await resCateg.json();
+                if (!resCateg.ok || !resItens.ok || !resAnalise.ok) throw new Error("Falha ao ler arquivos");
+
+                const categData = await resCateg.json();
                 const itensRaw = await resItens.json();
                 rawData.analise = await resAnalise.json();
-                rawData.categ = categ;
+                rawData.categ = categData;
 
-                // Mapeia os itens para busca rápida
                 itensRaw.forEach(r => { rawData.itens[String(parseInt(r.item))] = r.texto; });
 
-                // Popula o Filtro
                 const filter = document.getElementById('themeFilter');
                 filter.innerHTML = '<option value="ALL">TODOS OS EIXOS</option>';
-                categ.forEach(c => filter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
+                categData.forEach(c => filter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
 
-                document.getElementById('dataStatus').innerText = "Dados Sincronizados";
+                document.getElementById('dataStatus').innerText = "Conectado: JSON Ativo";
                 processar(rawData.analise);
 
             } catch (error) {
-                console.error("Erro ao carregar JSON:", error);
-                document.getElementById('dataStatus').innerText = "Erro ao ler arquivos JSON";
+                console.error(error);
+                document.getElementById('dataStatus').innerText = "Erro: Arquivos não encontrados";
                 document.getElementById('dataStatus').style.background = "#fee2e2";
-                document.getElementById('dataStatus').style.color = "#991b1b";
             }
         }
 
-        // 2. LÓGICA DE CÁLCULO E FILTRO (IGUAL À ANTERIOR, ADAPTADA PARA JSON)
+        // 2. PROCESSAMENTO
         function processar(data, filteredKeys = null) {
             const nK = (k) => String(parseInt(k, 10));
-            const allKeys = Object.keys(data[0]).filter(k => !isNaN(k)).map(k => nK(k));
+            const allKeys = Object.keys(data[0]).filter(k => !isNaN(k) || (typeof k === 'string' && !isNaN(parseInt(k)))).map(k => nK(k));
             const activeKeys = filteredKeys || allKeys;
             const N = data.length;
             let sG = 0, cG = 0;
@@ -166,45 +175,35 @@
             document.getElementById('valN').innerText = N;
             document.getElementById('valAlpha').innerText = calculateAlpha(data, activeKeys);
             document.getElementById('valMean').innerText = (sG/cG || 0).toFixed(2);
+            
             renderCharts(stats);
             renderTableEixos(data);
         }
 
-        function calculateAlpha(data, keys) {
-            // Lógica de Alfa de Cronbach mantida...
-            if (keys.length <= 1) return "0.00";
-            const k = keys.length;
-            const itemVars = keys.map(key => {
-                const vals = data.map(r => parseFloat(r[key] || r[key.padStart(2,'0')])).filter(v => !isNaN(v));
-                const m = vals.reduce((a, b) => a + b, 0) / vals.length;
-                return vals.reduce((a, b) => a + Math.pow(b - m, 2), 0) / vals.length;
-            });
-            const totals = data.map(r => keys.reduce((s, k) => s + (parseFloat(r[k] || r[k.padStart(2,'0')]) || 0), 0));
-            const tMean = totals.reduce((a, b) => a + b, 0) / totals.length;
-            const tVar = totals.reduce((a, b) => a + Math.pow(b - tMean, 2), 0) / totals.length;
-            return tVar === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tVar))).toFixed(2);
-        }
-
+        // 3. GRÁFICOS
         function renderCharts(stats) {
             const colors = ['#dc2626', '#f87171', '#e2e8f0', '#60a5fa', '#2563eb'];
+            const labels = stats.map(s => s.texto);
+            
+            const gCtx = (id) => { 
+                if(charts[id]) charts[id].destroy(); 
+                return document.getElementById(id).getContext('2d'); 
+            };
+
             const commonOptions = {
                 indexAxis: 'y', maintainAspectRatio: false,
                 plugins: { 
                     legend: { position: 'bottom' },
-                    datalabels: { 
-                        color: (ctx) => ctx.datasetIndex === 2 ? '#000' : '#fff',
-                        formatter: v => v === 0 ? '' : Math.abs(v)+'%' 
-                    }
+                    datalabels: { color: (ctx) => ctx.datasetIndex === 2 || (id==='chartSimp'&&ctx.datasetIndex===1) ? '#000' : '#fff', formatter: v => v === 0 ? '' : Math.abs(v)+'%' }
                 },
-                scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } }
+                scales: { x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v)+'%' } }, y: { stacked: true, grid: { display: false } } }
             };
 
-            const gCtx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
-
+            // Full Divergente
             charts.chartFull = new Chart(gCtx('chartFull'), {
                 type: 'bar',
                 data: {
-                    labels: stats.map(s => s.texto),
+                    labels: labels,
                     datasets: [
                         { label: 'Discordo Total', data: stats.map(s => -s.dt), backgroundColor: colors[0] },
                         { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: colors[1] },
@@ -216,31 +215,53 @@
                 options: commonOptions
             });
 
+            // Simplificado
             charts.chartSimp = new Chart(gCtx('chartSimp'), {
                 type: 'bar',
                 data: {
-                    labels: stats.map(s => s.texto),
+                    labels: labels,
                     datasets: [
                         { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: '#ef4444' },
                         { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: '#e2e8f0' },
                         { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: '#2563eb' }
                     ]
                 },
-                options: commonOptions
+                options: {
+                    ...commonOptions,
+                    plugins: { ...commonOptions.plugins, datalabels: { ...commonOptions.plugins.datalabels, color: (ctx) => ctx.datasetIndex === 1 ? '#000' : '#fff' }}
+                }
             });
-            
+
+            // Acumulado
             charts.chartBar = new Chart(gCtx('chartBar'), {
                 type: 'bar',
                 data: {
-                    labels: stats.map(s => s.texto),
+                    labels: labels,
                     datasets: [
-                        { label: 'Discordo', data: stats.map(s => parseFloat(s.dt)+parseFloat(s.d)), backgroundColor: colors[0] },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
-                        { label: 'Concordo', data: stats.map(s => parseFloat(s.c)+parseFloat(s.ct)), backgroundColor: colors[4] }
+                        { label: 'DT', data: stats.map(s => s.dt), backgroundColor: colors[0] },
+                        { label: 'D', data: stats.map(s => s.d), backgroundColor: colors[1] },
+                        { label: 'N', data: stats.map(s => s.n), backgroundColor: colors[2] },
+                        { label: 'C', data: stats.map(s => s.c), backgroundColor: colors[3] },
+                        { label: 'CT', data: stats.map(s => s.ct), backgroundColor: colors[4] }
                     ]
                 },
                 options: { ...commonOptions, indexAxis: 'x', scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
             });
+        }
+
+        // 4. ALFA E TABELA
+        function calculateAlpha(data, keys) {
+            if (keys.length <= 1) return "0.00";
+            const k = keys.length;
+            const itemVars = keys.map(key => {
+                const vals = data.map(r => parseFloat(r[key] || r[key.padStart(2,'0')])).filter(v => !isNaN(v));
+                const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+                return vals.reduce((a, b) => a + Math.pow(b - m, 2), 0) / vals.length;
+            });
+            const totals = data.map(r => keys.reduce((s, k) => s + (parseFloat(r[k] || r[k.padStart(2,'0')]) || 0), 0));
+            const tMean = totals.reduce((a, b) => a + b, 0) / totals.length;
+            const tVar = totals.reduce((a, b) => a + Math.pow(b - tMean, 2), 0) / totals.length;
+            return tVar === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tVar))).toFixed(2);
         }
 
         function renderTableEixos(data) {
@@ -267,9 +288,8 @@
             setTimeout(() => { Object.values(charts).forEach(c => c.resize()); }, 350);
         }
 
-        // Inicia a carga automática
         window.onload = loadData;
-
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
