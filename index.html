@@ -240,7 +240,7 @@
                 { label: 'Concordo Total', data: stats.map(s => s.ct), backgroundColor: colors[4] }
             ]}, options: commonOpt });
 
-            // AJUSTE: Label de cor preta no Simplificado
+            // AJUSTE: Cor do texto sempre preta no Divergente Simplificado
             charts.chartSimp = new Chart(ctx('chartSimp'), { type: 'bar', data: { labels, datasets: [
                 { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: colors[0] },
                 { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
@@ -271,12 +271,21 @@
             });
         }
 
-        // AJUSTE: Geração de PNG com fundo branco
+        // CORREÇÃO: Forçar fundo branco e remover influências do layout cinza no PNG
         async function downloadPNG(id, name) {
             const element = document.getElementById(id);
             const canvas = await html2canvas(element, {
-                backgroundColor: "#ffffff",
-                scale: 2
+                backgroundColor: "#ffffff", // Fundo do canvas
+                scale: 2,                   // Alta definição
+                logging: false,
+                useCORS: true,
+                onclone: (clonedDoc) => {
+                    // Garante que o elemento clonado para o print tenha fundo branco e sem bordas cinzas
+                    const el = clonedDoc.getElementById(id);
+                    el.style.backgroundColor = "white";
+                    el.style.boxShadow = "none";
+                    el.style.border = "none";
+                }
             });
             const link = document.createElement('a');
             link.download = `${name}.png`; 
