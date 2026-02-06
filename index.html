@@ -30,11 +30,8 @@
         .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 250px; border: 2px solid var(--primary); }
         .btn-download { position: absolute; top: 15px; right: 15px; z-index: 10; border-radius: 8px; font-size: 0.8rem; }
         footer { margin-top: auto; padding: 2rem 0; text-align: center; color: #64748b; font-size: 0.9rem; border-top: 1px solid #e2e8f0; }
-        
-        /* CORREÇÃO DAS ABAS: Removido o display: block forçado que quebrava o comportamento do Bootstrap */
         .tab-content > .tab-pane { display: none; }
         .tab-content > .active { display: block; height: auto; overflow: visible; }
-
         .table-custom { font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
         .table-custom thead { background: var(--dark-navy); color: white; }
     </style>
@@ -144,22 +141,17 @@
                     fetch('itens3.json'), 
                     fetch('analise3.json')
                 ]);
-                
                 rawData.categ = await resC.json();
                 const itensData = await resI.json();
                 rawData.analise = await resA.json();
-                
                 itensData.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
-                
                 const etapas = [...new Set(rawData.analise.map(item => item.etapa))].filter(e => e).sort();
                 const sFilter = document.getElementById('stageFilter');
                 sFilter.innerHTML = '<option value="ALL">TODAS AS ETAPAS</option>';
                 etapas.forEach(e => sFilter.innerHTML += `<option value="${e}">${e}</option>`);
-
                 const tFilter = document.getElementById('themeFilter');
                 tFilter.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
                 rawData.categ.forEach(c => tFilter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
-                
                 applyFilter();
             } catch (e) {
                 console.error("Erro na carga dos arquivos JSON:", e);
@@ -169,12 +161,10 @@
         function applyFilter() {
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
-
             let filteredRows = rawData.analise;
             if (etapaSel !== 'ALL') {
                 filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
             }
-
             let targetKeys = null;
             if (eixoSel !== 'ALL') {
                 const categoria = rawData.categ.find(x => x.Eixo === eixoSel);
@@ -182,14 +172,12 @@
                     targetKeys = categoria.Questões.split(',').map(s => String(parseInt(s.trim())));
                 }
             }
-
             processar(filteredRows, targetKeys);
         }
 
         function processar(data, keys = null) {
             const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(k => String(parseInt(k)));
             const N = data.length;
-
             if (N === 0) {
                 document.getElementById('valN').innerText = "0";
                 document.getElementById('valAlpha').innerText = "0.00";
@@ -198,7 +186,6 @@
                 document.getElementById('body-itens').innerHTML = '';
                 return;
             }
-
             let sumG = 0, countG = 0;
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
@@ -216,11 +203,9 @@
                     media: m.toFixed(2), dp: dp.toFixed(2)
                 };
             });
-
             document.getElementById('valN').innerText = N;
             document.getElementById('valAlpha').innerText = calculateAlpha(data, activeKeys);
             document.getElementById('valMean').innerText = (sumG/countG || 0).toFixed(2);
-            
             renderCharts(stats);
             renderTables(data, stats);
         }
@@ -255,11 +240,12 @@
                 { label: 'Concordo Total', data: stats.map(s => s.ct), backgroundColor: colors[4] }
             ]}, options: commonOpt });
 
+            // AJUSTE: Label de cor preta no Simplificado
             charts.chartSimp = new Chart(ctx('chartSimp'), { type: 'bar', data: { labels, datasets: [
                 { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: colors[0] },
                 { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: colors[2] },
                 { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: colors[4] }
-            ]}, options: commonOpt });
+            ]}, options: { ...commonOpt, plugins: { ...commonOpt.plugins, datalabels: { color: '#000', formatter: v => v === 0 ? '' : Math.abs(v)+'%' } } } });
 
             charts.chartBar = new Chart(ctx('chartBar'), { type: 'bar', data: { labels, datasets: [
                 { label: 'D. Total', data: stats.map(s => s.dt), backgroundColor: colors[0] },
@@ -285,10 +271,17 @@
             });
         }
 
+        // AJUSTE: Geração de PNG com fundo branco
         async function downloadPNG(id, name) {
-            const canvas = await html2canvas(document.getElementById(id));
+            const element = document.getElementById(id);
+            const canvas = await html2canvas(element, {
+                backgroundColor: "#ffffff",
+                scale: 2
+            });
             const link = document.createElement('a');
-            link.download = `${name}.png`; link.href = canvas.toDataURL(); link.click();
+            link.download = `${name}.png`; 
+            link.href = canvas.toDataURL("image/png"); 
+            link.click();
         }
 
         function exportPDF() {
