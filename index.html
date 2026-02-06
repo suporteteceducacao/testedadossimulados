@@ -153,13 +153,11 @@
                 rawData.analise = analise;
                 itens.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
                 
-                // NOVO: Lê as etapas únicas diretamente de analise3.json
-                const etapasUnicas = [...new Set(analise.map(item => item.etapa))].filter(e => e).sort();
+                // POPULANDO ETAPAS DO analise3.json
+                const stages = [...new Set(analise.map(item => item.etapa))].filter(s => s).sort();
                 const sFilter = document.getElementById('stageFilter');
                 sFilter.innerHTML = '<option value="ALL">TODAS AS ETAPAS</option>';
-                etapasUnicas.forEach(etapa => {
-                    sFilter.innerHTML += `<option value="${etapa}">${etapa}</option>`;
-                });
+                stages.forEach(st => sFilter.innerHTML += `<option value="${st}">${st}</option>`);
 
                 const f = document.getElementById('themeFilter');
                 f.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
@@ -171,38 +169,38 @@
             }
         }
 
-        // Função de filtro adaptada para cruzar Etapa (de analise3) e Eixo (de categ3)
         function applyFilter() {
-            const eixoSelecionado = document.getElementById('themeFilter').value;
-            const etapaSelecionada = document.getElementById('stageFilter').value;
+            const eixoVal = document.getElementById('themeFilter').value;
+            const stageVal = document.getElementById('stageFilter').value;
 
-            // Filtra os dados de analise pela etapa
-            let dadosFiltrados = (etapaSelecionada === 'ALL') 
+            // Filtra as linhas por etapa
+            let dataFiltered = (stageVal === 'ALL') 
                 ? rawData.analise 
-                : rawData.analise.filter(r => r.etapa === etapaSelecionada);
+                : rawData.analise.filter(r => String(r.etapa) === String(stageVal));
 
-            // Define quais colunas (questões) exibir baseado no eixo
-            let chavesQuestoes = null;
-            if (eixoSelecionado !== 'ALL') {
-                const categoria = rawData.categ.find(x => x.Eixo === eixoSelecionado);
-                if (categoria) {
-                    chavesQuestoes = categoria.Questões.split(',').map(s => String(parseInt(s.trim())));
-                }
+            // Filtra as colunas por eixo
+            let keys = null;
+            if(eixoVal !== 'ALL') {
+                const c = rawData.categ.find(x => x.Eixo === eixoVal);
+                if(c) keys = c.Questões.split(',').map(s => String(parseInt(s.trim())));
             }
 
-            processar(dadosFiltrados, chavesQuestoes);
+            processar(dataFiltered, keys);
         }
 
         function processar(data, keys = null) {
-            if (data.length === 0) {
+            const nK = (k) => String(parseInt(k));
+            const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(nK);
+            const N = data.length;
+
+            if (N === 0) {
                 document.getElementById('valN').innerText = "0";
+                document.getElementById('valAlpha').innerText = "0.00";
+                document.getElementById('valMean').innerText = "0.00";
                 return;
             }
-            const nK = (k) => String(parseInt(k));
-            const activeKeys = keys || Object.keys(data[0]).filter(k => !isNaN(parseInt(k))).map(nK);
-            const N = data.length;
+
             let sumG = 0, countG = 0;
-            
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
                 data.forEach(r => {
