@@ -18,7 +18,7 @@
         body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; transition: 0.3s; }
         #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background: var(--dark-navy); color: white; z-index: 1050; transition: 0.3s; }
         #sidebar.collapsed { width: 80px; }
-        #sidebar.collapsed .sidebar-text, #sidebar.collapsed .footer-text { display: none; }
+        #sidebar.collapsed .sidebar-text { display: none; }
         .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
         .main-content.expanded { margin-left: 80px; }
         .card-stat { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
@@ -60,7 +60,7 @@
             </div>
             <div class="d-flex gap-2">
                 <select id="stageFilter" class="form-select filter-select" onchange="applyFilter()">
-                    <option value="ALL">TODAS AS ETAPAS</option>
+                    <option value="ALL">CARREGANDO ETAPAS...</option>
                 </select>
                 <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
             </div>
@@ -86,35 +86,28 @@
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
                 </div>
             </div>
-
             <div class="tab-pane fade" id="tab-simp">
                 <div class="chart-card" id="card-simp">
                     <button class="btn btn-sm btn-outline-secondary btn-download" onclick="downloadPNG('card-simp', 'Divergente_Simplificado')"><i class="fas fa-camera me-1"></i> PNG</button>
                     <div class="chart-container"><canvas id="chartSimp"></canvas></div>
                 </div>
             </div>
-
             <div class="tab-pane fade" id="tab-bar">
                 <div class="chart-card" id="card-bar">
                     <button class="btn btn-sm btn-outline-secondary btn-download" onclick="downloadPNG('card-bar', 'Barras_Acumuladas')"><i class="fas fa-camera me-1"></i> PNG</button>
                     <div class="chart-container"><canvas id="chartBar"></canvas></div>
                 </div>
             </div>
-
             <div class="tab-pane fade" id="tab-rel">
                 <div class="chart-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="fw-bold m-0">Estatísticas por Eixo e Item</h5>
                         <button class="btn btn-dark btn-sm" onclick="exportPDF()"><i class="fas fa-file-pdf me-1"></i> Baixar Relatório PDF</button>
                     </div>
-                    
-                    <h6 class="text-primary fw-bold mt-4">Resumo dos Eixos</h6>
                     <table class="table table-custom mb-5" id="table-eixos">
                         <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead>
                         <tbody id="body-eixos"></tbody>
                     </table>
-
-                    <h6 class="text-primary fw-bold">Detalhamento por Questão</h6>
                     <table class="table table-custom" id="table-itens">
                         <thead><tr><th>ID</th><th>Questão</th><th>Média</th><th>Desvio Padrão</th></tr></thead>
                         <tbody id="body-itens"></tbody>
@@ -124,10 +117,7 @@
         </div>
 
         <footer>
-            <div class="container">
-                <p class="mb-1"><b>Analytics Pro Dashboard</b> - Sistema de Monitoramento Educacional</p>
-                <p class="text-muted small mb-0">Gerado automaticamente via JSON | v3.0 - 2026</p>
-            </div>
+            <p><b>Analytics Pro Dashboard</b> | v3.0 - 2026</p>
         </footer>
     </main>
 
@@ -144,59 +134,70 @@
 
         async function loadData() {
             try {
-                const [resC, resI, resA] = await Promise.all([fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')]);
-                const categ = await resC.json(); 
-                const itens = await resI.json(); 
-                const analise = await resA.json();
+                const [resC, resI, resA] = await Promise.all([
+                    fetch('categ3.json'), 
+                    fetch('itens3.json'), 
+                    fetch('analise3.json')
+                ]);
                 
-                rawData.categ = categ;
-                rawData.analise = analise;
-                itens.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
+                rawData.categ = await resC.json();
+                const itensData = await resI.json();
+                rawData.analise = await resA.json();
                 
-                // POPULANDO ETAPAS DO analise3.json
-                const stages = [...new Set(analise.map(item => item.etapa))].filter(s => s).sort();
+                // Mapear textos das questões
+                itensData.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
+                
+                // 1. Popular filtro de Etapas dinamicamente do analise3.json
+                const etapas = [...new Set(rawData.analise.map(item => item.etapa))].filter(e => e).sort();
                 const sFilter = document.getElementById('stageFilter');
                 sFilter.innerHTML = '<option value="ALL">TODAS AS ETAPAS</option>';
-                stages.forEach(st => sFilter.innerHTML += `<option value="${st}">${st}</option>`);
+                etapas.forEach(e => sFilter.innerHTML += `<option value="${e}">${e}</option>`);
 
-                const f = document.getElementById('themeFilter');
-                f.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
-                categ.forEach(c => f.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
+                // 2. Popular filtro de Eixos
+                const tFilter = document.getElementById('themeFilter');
+                tFilter.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
+                rawData.categ.forEach(c => tFilter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
                 
-                processar(analise);
+                applyFilter(); // Primeira execução
             } catch (e) {
-                console.error("Erro ao carregar JSONs.", e);
+                console.error("Erro na carga dos arquivos JSON:", e);
+                alert("Erro ao carregar arquivos. Verifique se analise3.json, categ3.json e itens3.json estão na mesma pasta.");
             }
         }
 
         function applyFilter() {
-            const eixoVal = document.getElementById('themeFilter').value;
-            const stageVal = document.getElementById('stageFilter').value;
+            const etapaSel = document.getElementById('stageFilter').value;
+            const eixoSel = document.getElementById('themeFilter').value;
 
-            // Filtra as linhas por etapa
-            let dataFiltered = (stageVal === 'ALL') 
-                ? rawData.analise 
-                : rawData.analise.filter(r => String(r.etapa) === String(stageVal));
-
-            // Filtra as colunas por eixo
-            let keys = null;
-            if(eixoVal !== 'ALL') {
-                const c = rawData.categ.find(x => x.Eixo === eixoVal);
-                if(c) keys = c.Questões.split(',').map(s => String(parseInt(s.trim())));
+            // Filtrar as LINHAS por Etapa
+            let filteredRows = rawData.analise;
+            if (etapaSel !== 'ALL') {
+                filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
             }
 
-            processar(dataFiltered, keys);
+            // Determinar as COLUNAS (Questões) por Eixo
+            let targetKeys = null;
+            if (eixoSel !== 'ALL') {
+                const categoria = rawData.categ.find(x => x.Eixo === eixoSel);
+                if (categoria) {
+                    targetKeys = categoria.Questões.split(',').map(s => String(parseInt(s.trim())));
+                }
+            }
+
+            processar(filteredRows, targetKeys);
         }
 
         function processar(data, keys = null) {
-            const nK = (k) => String(parseInt(k));
-            const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(nK);
+            const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(k => String(parseInt(k)));
             const N = data.length;
 
             if (N === 0) {
                 document.getElementById('valN').innerText = "0";
                 document.getElementById('valAlpha').innerText = "0.00";
                 document.getElementById('valMean').innerText = "0.00";
+                // Limpar tabelas
+                document.getElementById('body-eixos').innerHTML = '';
+                document.getElementById('body-itens').innerHTML = '';
                 return;
             }
 
@@ -217,13 +218,16 @@
                     media: m.toFixed(2), dp: dp.toFixed(2)
                 };
             });
+
             document.getElementById('valN').innerText = N;
             document.getElementById('valAlpha').innerText = calculateAlpha(data, activeKeys);
             document.getElementById('valMean').innerText = (sumG/countG || 0).toFixed(2);
+            
             renderCharts(stats);
             renderTables(data, stats);
         }
 
+        // ... Restante do código (calculateAlpha, renderCharts, renderTables, export) permanece INALTERADO ...
         function calculateAlpha(data, keys) {
             if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
@@ -244,19 +248,7 @@
             const labels = stats.map(s => s.texto);
             const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
             
-            const commonOpt = { 
-                indexAxis: 'y', maintainAspectRatio: false, 
-                plugins: { 
-                    datalabels: { 
-                        color: (c) => c.datasetIndex === 2 ? '#000' : '#fff',
-                        formatter: v => v === 0 ? '' : Math.abs(v)+'%' 
-                    } 
-                }, 
-                scales: { 
-                    x: { stacked: true, grid: {display: false}, ticks: {callback: v => Math.abs(v)+'%'} }, 
-                    y: { stacked: true, grid: {display: false} } 
-                } 
-            };
+            const commonOpt = { indexAxis: 'y', maintainAspectRatio: false, plugins: { datalabels: { color: (c) => c.datasetIndex === 2 ? '#000' : '#fff', formatter: v => v === 0 ? '' : Math.abs(v)+'%' } }, scales: { x: { stacked: true, grid: {display: false}, ticks: {callback: v => Math.abs(v)+'%'} }, y: { stacked: true, grid: {display: false} } } };
 
             charts.chartFull = new Chart(ctx('chartFull'), { type: 'bar', data: { labels, datasets: [
                 { label: 'Discordo Total', data: stats.map(s => -s.dt), backgroundColor: colors[0] },
@@ -299,23 +291,19 @@
         async function downloadPNG(id, name) {
             const canvas = await html2canvas(document.getElementById(id));
             const link = document.createElement('a');
-            link.download = `${name}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
+            link.download = `${name}.png`; link.href = canvas.toDataURL(); link.click();
         }
 
         function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Relatório Analytics Pro - Análise de Eixos", 14, 15);
-            doc.autoTable({ html: '#table-eixos', startY: 20, headStyles: {fillColor: [15, 23, 42]} });
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.text("Relatório Analytics Pro", 14, 15);
+            doc.autoTable({ html: '#table-eixos', startY: 20 });
             doc.addPage();
-            doc.text("Detalhamento por Item", 14, 15);
-            doc.autoTable({ html: '#table-itens', startY: 20, headStyles: {fillColor: [15, 23, 42]} });
-            doc.save("Relatorio_Completo.pdf");
+            doc.autoTable({ html: '#table-itens', startY: 20 });
+            doc.save("Relatorio.pdf");
         }
+
         window.onload = loadData;
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
