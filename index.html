@@ -27,7 +27,7 @@
         .nav-link-custom { color: #94a3b8; padding: 12px 20px; border-radius: 12px; margin: 4px 15px; cursor: pointer; border: none; background: none; text-align: left; width: calc(100% - 30px); display: block; text-decoration: none; transition: 0.2s; }
         .nav-link-custom.active, .nav-link-custom:hover { background: rgba(255,255,255,0.1); color: white; }
         .toggle-btn { background: none; border: none; color: white; padding: 20px; width: 100%; text-align: left; cursor: pointer; outline: none !important; }
-        .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 400px; border: 2px solid var(--primary); }
+        .filter-select { border-radius: 12px; padding: 10px 20px; font-weight: 600; min-width: 250px; border: 2px solid var(--primary); }
         .btn-download { position: absolute; top: 15px; right: 15px; z-index: 10; border-radius: 8px; font-size: 0.8rem; }
         footer { margin-top: auto; padding: 2rem 0; text-align: center; color: #64748b; font-size: 0.9rem; border-top: 1px solid #e2e8f0; }
         .tab-content > .tab-pane { display: block; height: 0; overflow: hidden; }
@@ -58,7 +58,12 @@
                 <h2 class="fw-bold mb-0">Resultados da Pesquisa</h2>
                 <p class="text-muted mb-0">Escala Likert & Análise de Consistência</p>
             </div>
-            <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
+            <div class="d-flex gap-2">
+                <select id="stageFilter" class="form-select filter-select" onchange="applyFilter()">
+                    <option value="ALL">TODAS AS ETAPAS</option>
+                </select>
+                <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
+            </div>
         </header>
 
         <div class="row g-4 mb-5">
@@ -140,32 +145,72 @@
         async function loadData() {
             try {
                 const [resC, resI, resA] = await Promise.all([fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')]);
-                const categ = await resC.json(); const itens = await resI.json(); const analise = await resA.json();
+                const categ = await resC.json(); 
+                const itens = await resI.json(); 
+                const analise = await resA.json();
+                
                 rawData.categ = categ;
                 rawData.analise = analise;
                 itens.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
+                
+                // NOVO: Lê as etapas únicas diretamente de analise3.json
+                const etapasUnicas = [...new Set(analise.map(item => item.etapa))].filter(e => e).sort();
+                const sFilter = document.getElementById('stageFilter');
+                sFilter.innerHTML = '<option value="ALL">TODAS AS ETAPAS</option>';
+                etapasUnicas.forEach(etapa => {
+                    sFilter.innerHTML += `<option value="${etapa}">${etapa}</option>`;
+                });
+
                 const f = document.getElementById('themeFilter');
                 f.innerHTML = '<option value="ALL">TODOS OS EIXOS DA PESQUISA</option>';
                 categ.forEach(c => f.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
+                
                 processar(analise);
             } catch (e) {
-                console.error("Erro ao carregar JSONs.");
+                console.error("Erro ao carregar JSONs.", e);
             }
         }
 
+        // Função de filtro adaptada para cruzar Etapa (de analise3) e Eixo (de categ3)
+        function applyFilter() {
+            const eixoSelecionado = document.getElementById('themeFilter').value;
+            const etapaSelecionada = document.getElementById('stageFilter').value;
+
+            // Filtra os dados de analise pela etapa
+            let dadosFiltrados = (etapaSelecionada === 'ALL') 
+                ? rawData.analise 
+                : rawData.analise.filter(r => r.etapa === etapaSelecionada);
+
+            // Define quais colunas (questões) exibir baseado no eixo
+            let chavesQuestoes = null;
+            if (eixoSelecionado !== 'ALL') {
+                const categoria = rawData.categ.find(x => x.Eixo === eixoSelecionado);
+                if (categoria) {
+                    chavesQuestoes = categoria.Questões.split(',').map(s => String(parseInt(s.trim())));
+                }
+            }
+
+            processar(dadosFiltrados, chavesQuestoes);
+        }
+
         function processar(data, keys = null) {
+            if (data.length === 0) {
+                document.getElementById('valN').innerText = "0";
+                return;
+            }
             const nK = (k) => String(parseInt(k));
             const activeKeys = keys || Object.keys(data[0]).filter(k => !isNaN(parseInt(k))).map(nK);
             const N = data.length;
             let sumG = 0, countG = 0;
+            
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
                 data.forEach(r => {
                     const v = parseInt(r[k]);
                     if(f[v] !== undefined) { f[v]++; sumG += v; countG++; vls.push(v); }
                 });
-                const m = vls.reduce((a,b)=>a+b,0)/vls.length;
-                const dp = Math.sqrt(vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length);
+                const m = vls.length ? vls.reduce((a,b)=>a+b,0)/vls.length : 0;
+                const dp = vls.length ? Math.sqrt(vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length) : 0;
                 return {
                     id: k, texto: rawData.itens[k] || `Questão ${k}`,
                     dt: (f[1]/N*100).toFixed(1), d: (f[2]/N*100).toFixed(1), n: (f[3]/N*100).toFixed(1),
@@ -182,10 +227,11 @@
         }
 
         function calculateAlpha(data, keys) {
-            if(keys.length <= 1) return "0.00";
+            if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
             const itemVars = keys.map(key => {
                 const vals = data.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+                if(vals.length === 0) return 0;
                 const m = vals.reduce((a,b)=>a+b,0)/vals.length;
                 return vals.reduce((a,b)=>a+Math.pow(b-m,2),0)/vals.length;
             });
@@ -204,8 +250,6 @@
                 indexAxis: 'y', maintainAspectRatio: false, 
                 plugins: { 
                     datalabels: { 
-                        // Alteração: Apenas o Neutro (datasetIndex 2) é preto. 
-                        // Discordo Total (0) e Discordo (1) agora são brancos.
                         color: (c) => c.datasetIndex === 2 ? '#000' : '#fff',
                         formatter: v => v === 0 ? '' : Math.abs(v)+'%' 
                     } 
@@ -252,15 +296,6 @@
             stats.forEach(s => {
                 bI.innerHTML += `<tr><td>${s.id}</td><td class="small">${s.texto}</td><td>${s.media}</td><td>${s.dp}</td></tr>`;
             });
-        }
-
-        function applyFilter() {
-            const v = document.getElementById('themeFilter').value;
-            if(v === 'ALL') processar(rawData.analise);
-            else {
-                const c = rawData.categ.find(x => x.Eixo === v);
-                processar(rawData.analise, c.Questões.split(',').map(s => String(parseInt(s.trim()))));
-            }
         }
 
         async function downloadPNG(id, name) {
