@@ -33,7 +33,6 @@
             color: #1e293b;
         }
 
-        /* Sidebar Refinada */
         #sidebar { 
             width: var(--sidebar-width); 
             height: 100vh; 
@@ -55,7 +54,6 @@
         }
         .main-content.expanded { margin-left: 85px; }
 
-        /* Cards de Estatísticas */
         .card-stat { 
             background: white; 
             border-radius: 16px; 
@@ -67,7 +65,6 @@
         .card-stat:hover { transform: translateY(-3px); }
         .card-stat small { letter-spacing: 0.05em; color: #64748b; }
 
-        /* Estilização dos Gráficos */
         .chart-card { 
             background: white; 
             border-radius: 20px; 
@@ -76,9 +73,9 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
         }
-        .chart-container { height: 600px; position: relative; }
+        /* Altura dinâmica para acomodar textos longos que quebram linha */
+        .chart-container { min-height: 650px; position: relative; }
 
-        /* Tabs Técnicas */
         .nav-pills .nav-link {
             color: #64748b;
             font-weight: 600;
@@ -91,7 +88,6 @@
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
 
-        /* Tabelas */
         .table-custom { border-collapse: separate; border-spacing: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
         .table-custom thead { background: #f1f5f9; color: var(--dark-navy); }
         .table-custom th { padding: 15px; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
@@ -119,7 +115,7 @@
             <span class="fs-5 fw-bold sidebar-text">Analytics Pro</span>
         </div>
         <nav class="nav flex-column mt-3">
-            <a href="#" class="nav-link-custom active p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none">
+            <a href="#" class="nav-link-custom active p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none" style="color: white; background: rgba(255,255,255,0.1);">
                 <i class="fas fa-th-large me-3"></i> <span class="sidebar-text">Dashboard</span>
             </a>
             <button class="nav-link-custom p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start w-75" onclick="window.location.reload()">
@@ -144,33 +140,9 @@
         </header>
 
         <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card-stat">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <small class="fw-bold">AMOSTRAGEM (N)</small>
-                        <i class="fas fa-users text-muted"></i>
-                    </div>
-                    <h2 id="valN" class="fw-bold m-0">0</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card-stat">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <small class="fw-bold">ALFA DE CRONBACH</small>
-                        <i class="fas fa-shield-halved text-danger"></i>
-                    </div>
-                    <h2 id="valAlpha" class="fw-bold m-0 text-danger">0.00</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card-stat">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <small class="fw-bold">MÉDIA GLOBAL</small>
-                        <i class="fas fa-calculator text-success"></i>
-                    </div>
-                    <h2 id="valMean" class="fw-bold m-0 text-success">0.00</h2>
-                </div>
-            </div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">AMOSTRAGEM (N)</small><h2 id="valN" class="fw-bold m-0 mt-2">0</h2></div></div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">ALFA DE CRONBACH</small><h2 id="valAlpha" class="fw-bold m-0 mt-2 text-danger">0.00</h2></div></div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">MÉDIA GLOBAL</small><h2 id="valMean" class="fw-bold m-0 mt-2 text-success">0.00</h2></div></div>
         </div>
 
         <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
@@ -183,43 +155,39 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-full">
                 <div class="chart-card" id="card-full">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <h5 class="fw-bold">Distribuição Likert de 5 Pontos</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-full', 'Divergente_Detalhado')"><i class="fas fa-download me-1"></i> Exportar PNG</button>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold">Distribuição Likert Completa</h5>
+                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-full', 'Divergente_Detalhado')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-simp">
                 <div class="chart-card" id="card-simp">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <h5 class="fw-bold">Análise Agrupada (Sentiment Score)</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-simp', 'Divergente_Simplificado')"><i class="fas fa-download me-1"></i> Exportar PNG</button>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold">Agrupamento Positivo/Negativo</h5>
+                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-simp', 'Divergente_Simplificado')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartSimp"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-bar">
                 <div class="chart-card" id="card-bar">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <h5 class="fw-bold">Composição Linear de Respostas</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-bar', 'Barras_Acumuladas')"><i class="fas fa-download me-1"></i> Exportar PNG</button>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold">Análise de Frequência Relativa</h5>
+                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-bar', 'Barras_Acumuladas')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartBar"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-rel">
                 <div class="chart-card">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold m-0">Estatística Descritiva</h5>
-                        <button class="btn btn-dark btn-sm" onclick="exportPDF()"><i class="fas fa-file-pdf me-1"></i> Gerar PDF Executivo</button>
-                    </div>
-                    <h6 class="text-muted small fw-bold mb-3">ANÁLISE POR EIXO TEMÁTICO</h6>
+                    <button class="btn btn-dark btn-sm float-end" onclick="exportPDF()">PDF Executivo</button>
+                    <h5 class="fw-bold mb-4">Estatística Descritiva</h5>
                     <table class="table table-custom mb-5" id="table-eixos">
                         <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead>
                         <tbody id="body-eixos"></tbody>
                     </table>
-                    <h6 class="text-muted small fw-bold mb-3">DESEMPENHO POR ITEM INDIVIDUAL</h6>
                     <table class="table table-custom" id="table-itens">
                         <thead><tr><th>ID</th><th>Questão</th><th>Média</th><th>Desvio Padrão</th></tr></thead>
                         <tbody id="body-itens"></tbody>
@@ -228,32 +196,25 @@
             </div>
         </div>
 
-        <footer>
-            <p>© 2026 Analytics Pro System | Inteligência de Dados Educacionais</p>
+        <footer class="mt-5 text-center text-muted small pb-4">
+            <p>© 2026 Analytics Pro | v3.1 Visual Update</p>
         </footer>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         Chart.register(ChartDataLabels);
         let charts = {};
         let rawData = { analise: [], categ: [], itens: {} };
 
-        // PALETA TÉCNICA
         const techColors = {
-            d_total: '#e11d48', // Rose 700
-            d_parcial: '#fb7185', // Rose 400
-            neutral: '#e2e8f0',   // Slate 200
-            c_parcial: '#60a5fa', // Blue 400
-            c_total: '#2563eb'    // Blue 600
+            d_total: '#e11d48', d_parcial: '#fb7185',
+            neutral: '#e2e8f0', // O cinza alvo para texto preto
+            c_parcial: '#60a5fa', c_total: '#2563eb'
         };
 
         function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const mc = document.getElementById('main-content');
-            sb.classList.toggle('collapsed');
-            mc.classList.toggle('expanded');
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('main-content').classList.toggle('expanded');
             setTimeout(() => { Object.values(charts).forEach(c => c.resize()); }, 400);
         }
 
@@ -263,9 +224,8 @@
                     fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')
                 ]);
                 rawData.categ = await resC.json();
-                const itensData = await resI.json();
+                (await resI.json()).forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
                 rawData.analise = await resA.json();
-                itensData.forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
                 
                 const etapas = [...new Set(rawData.analise.map(item => item.etapa))].filter(e => e).sort();
                 const sFilter = document.getElementById('stageFilter');
@@ -284,9 +244,7 @@
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
             let filteredRows = rawData.analise;
-            if (etapaSel !== 'ALL') {
-                filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
-            }
+            if (etapaSel !== 'ALL') filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
             let targetKeys = null;
             if (eixoSel !== 'ALL') {
                 const categoria = rawData.categ.find(x => x.Eixo === eixoSel);
@@ -298,10 +256,7 @@
         function processar(data, keys = null) {
             const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(k => String(parseInt(k)));
             const N = data.length;
-            if (N === 0) {
-                ['valN', 'valAlpha', 'valMean'].forEach(id => document.getElementById(id).innerText = "0");
-                return;
-            }
+            if (N === 0) return;
             let sumG = 0, countG = 0;
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
@@ -312,7 +267,7 @@
                 const m = vls.length ? vls.reduce((a,b)=>a+b,0)/vls.length : 0;
                 const dp = vls.length ? Math.sqrt(vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length) : 0;
                 return {
-                    id: k, texto: rawData.itens[k] || `Item ${k}`,
+                    id: k, texto: rawData.itens[k] || `Questão ${k}`,
                     dt: (f[1]/N*100).toFixed(1), d: (f[2]/N*100).toFixed(1), n: (f[3]/N*100).toFixed(1),
                     c: (f[4]/N*100).toFixed(1), ct: (f[5]/N*100).toFixed(1),
                     neg: ((f[1]+f[2])/N*100).toFixed(1), pos: ((f[4]+f[5])/N*100).toFixed(1),
@@ -326,6 +281,105 @@
             renderTables(data, stats);
         }
 
+        function renderCharts(stats) {
+            const labels = stats.map(s => s.texto);
+            const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
+            
+            // CONFIGURAÇÃO DOS VALORES (LABELS) DENTRO DAS BARRAS
+            const datalabelConfig = {
+                color: (context) => {
+                    // SE FOR O DATASET DO MEIO (NEUTRO/CINZA), TEXTO PRETO
+                    const label = context.dataset.label;
+                    return (label === 'Neutro' || label === 'N') ? '#000000' : '#ffffff';
+                },
+                font: { weight: '800', size: 13 }, // Fonte aumentada e robusta
+                formatter: (v) => Math.abs(v) >= 5 ? Math.abs(v).toFixed(0) + '%' : ''
+            };
+
+            const commonOpt = {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
+                    datalabels: datalabelConfig
+                },
+                scales: {
+                    x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v) + '%' } },
+                    y: { 
+                        stacked: true, 
+                        grid: { display: false }, 
+                        ticks: { 
+                            font: { size: 11, weight: '600' },
+                            // QUEBRA DE TEXTO AUTOMÁTICA
+                            callback: function(value) {
+                                let label = this.getLabelForValue(value);
+                                if (label.length > 40) {
+                                    let words = label.split(' ');
+                                    let lines = [];
+                                    let currentLine = '';
+                                    words.forEach(word => {
+                                        if ((currentLine + word).length > 40) {
+                                            lines.push(currentLine);
+                                            currentLine = word + ' ';
+                                        } else {
+                                            currentLine += word + ' ';
+                                        }
+                                    });
+                                    lines.push(currentLine);
+                                    return lines;
+                                }
+                                return label;
+                            }
+                        } 
+                    }
+                }
+            };
+
+            charts.chartFull = new Chart(ctx('chartFull'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'D. Total', data: stats.map(s => -s.dt), backgroundColor: techColors.d_total },
+                        { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: techColors.d_parcial },
+                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
+                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
+                    ]
+                },
+                options: commonOpt
+            });
+
+            charts.chartSimp = new Chart(ctx('chartSimp'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: techColors.d_total },
+                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                        { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: techColors.c_total }
+                    ]
+                },
+                options: commonOpt
+            });
+
+            charts.chartBar = new Chart(ctx('chartBar'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'D. Total', data: stats.map(s => s.dt), backgroundColor: techColors.d_total },
+                        { label: 'Discordo', data: stats.map(s => s.d), backgroundColor: techColors.d_parcial },
+                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
+                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
+                    ]
+                },
+                options: { ...commonOpt, indexAxis: 'x', scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
+            });
+        }
+
+        // --- FUNÇÕES DE APOIO (MANTIDAS INALTERADAS) ---
         function calculateAlpha(data, keys) {
             if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
@@ -340,87 +394,6 @@
             return tVar === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tVar))).toFixed(2);
         }
 
-        function renderCharts(stats) {
-            const labels = stats.map(s => s.texto.length > 60 ? s.texto.substring(0,60)+'...' : s.texto);
-            const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
-            
-            // Configuração global para labels técnicos
-            const datalabelConfig = {
-                color: (context) => {
-                    const val = context.dataset.data[context.dataIndex];
-                    return Math.abs(val) < 8 ? 'transparent' : '#fff'; // Esconde se for muito pequeno
-                },
-                font: { weight: '700', size: 11 },
-                formatter: (v) => Math.abs(v) > 0 ? Math.abs(v).toFixed(0) + '%' : ''
-            };
-
-            const commonOpt = {
-                indexAxis: 'y',
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 20, font: { size: 12, weight: '600' } } },
-                    datalabels: datalabelConfig
-                },
-                scales: {
-                    x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v) + '%' } },
-                    y: { stacked: true, grid: { display: false }, ticks: { font: { size: 11, weight: '500' } } }
-                }
-            };
-
-            // 1. DIVERGENTE DETALHADO
-            charts.chartFull = new Chart(ctx('chartFull'), {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'D. Total', data: stats.map(s => -s.dt), backgroundColor: techColors.d_total, barThickness: 28 },
-                        { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: techColors.d_parcial, barThickness: 28 },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral, barThickness: 28 },
-                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial, barThickness: 28 },
-                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total, barThickness: 28 }
-                    ]
-                },
-                options: commonOpt
-            });
-
-            // 2. SIMPLIFICADO
-            charts.chartSimp = new Chart(ctx('chartSimp'), {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: techColors.d_total, barThickness: 32 },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral, barThickness: 32 },
-                        { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: techColors.c_total, barThickness: 32 }
-                    ]
-                },
-                options: commonOpt
-            });
-
-            // 3. BARRAS ACUMULADAS
-            charts.chartBar = new Chart(ctx('chartBar'), {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'D. Total', data: stats.map(s => s.dt), backgroundColor: techColors.d_total },
-                        { label: 'Discordo', data: stats.map(s => s.d), backgroundColor: techColors.d_parcial },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
-                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
-                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
-                    ]
-                },
-                options: { 
-                    ...commonOpt, 
-                    indexAxis: 'x', 
-                    scales: { 
-                        x: { stacked: true, grid: { display: false } }, 
-                        y: { stacked: true, max: 100, ticks: { callback: v => v + '%' } } 
-                    } 
-                }
-            });
-        }
-
         function renderTables(data, stats) {
             const bE = document.getElementById('body-eixos'); bE.innerHTML = '';
             rawData.categ.forEach(c => {
@@ -428,12 +401,10 @@
                 const vls = [];
                 data.forEach(r => ks.forEach(k => { if(r[k]) vls.push(parseInt(r[k])); }));
                 const m = vls.length ? (vls.reduce((a,b)=>a+b,0)/vls.length).toFixed(2) : "0.00";
-                bE.innerHTML += `<tr><td class="fw-bold text-primary">${c.Eixo}</td><td>${c.Tema}</td><td><span class="badge bg-danger-subtle text-danger">${calculateAlpha(data, ks)}</span></td><td class="fw-bold">${m}</td></tr>`;
+                bE.innerHTML += `<tr><td class="fw-bold text-primary">${c.Eixo}</td><td>${c.Tema}</td><td><span class="badge bg-danger-subtle text-danger">${calculateAlpha(data, ks)}</span></td><td>${m}</td></tr>`;
             });
             const bI = document.getElementById('body-itens'); bI.innerHTML = '';
-            stats.forEach(s => {
-                bI.innerHTML += `<tr><td class="text-muted">#${s.id}</td><td class="small fw-medium">${s.texto}</td><td><span class="fw-bold">${s.media}</span></td><td class="text-muted">${s.dp}</td></tr>`;
-            });
+            stats.forEach(s => { bI.innerHTML += `<tr><td class="text-muted">#${s.id}</td><td class="small fw-medium">${s.texto}</td><td><b>${s.media}</b></td><td class="text-muted">${s.dp}</td></tr>`; });
         }
 
         async function downloadPNG(id, name) {
@@ -445,16 +416,15 @@
 
         function exportPDF() {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.setFontSize(18); doc.text("Relatório de Análise Técnica", 14, 20);
-            doc.setFontSize(10); doc.setTextColor(100); doc.text("Gerado em: " + new Date().toLocaleString(), 14, 28);
-            doc.autoTable({ html: '#table-eixos', startY: 35, theme: 'grid', headStyles: {fillColor: [15, 23, 42]} });
+            doc.text("Relatório de Análise Analytics Pro", 14, 20);
+            doc.autoTable({ html: '#table-eixos', startY: 30, theme: 'grid' });
             doc.addPage();
-            doc.text("Detalhamento por Item", 14, 20);
-            doc.autoTable({ html: '#table-itens', startY: 25, theme: 'striped', headStyles: {fillColor: [15, 23, 42]} });
-            doc.save("Analytics_Pro_Relatorio.pdf");
+            doc.autoTable({ html: '#table-itens', startY: 20, theme: 'striped' });
+            doc.save("Relatorio_Analytics.pdf");
         }
 
         window.onload = loadData;
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
