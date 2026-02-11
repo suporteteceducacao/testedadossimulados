@@ -23,7 +23,7 @@
             --bg-main: #f8fafc;
         }
 
-        body { background-color: var(--bg-main); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        body { background-color: var(--bg-main); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; overflow-x: hidden; }
 
         #sidebar { 
             width: var(--sidebar-width); height: 100vh; position: fixed; 
@@ -49,16 +49,19 @@
 
         .nav-pills .nav-link.active { background-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        .table-custom { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .table-custom { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 0.85rem; width: 100%; }
         .table-custom thead { background: #f1f5f9; }
 
         .filter-select { border-radius: 10px; border: 1px solid #e2e8f0; padding: 8px 16px; }
 
         /* Estilos Relatório Modal */
-        #reportContent { background: white; padding: 40px; }
-        .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 20px; }
-        .report-section { margin-bottom: 50px; page-break-inside: avoid; }
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        #reportContent { background: white; padding: 30px; color: #000; }
+        .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 15px; }
+        .report-section { margin-bottom: 40px; page-break-inside: avoid; }
+        .img-report-container { background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+
+        .nav-link-custom { cursor: pointer; transition: 0.3s; }
+        .nav-link-custom:hover { background: rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -69,10 +72,15 @@
             <span class="fs-5 fw-bold sidebar-text">Analytics Pro</span>
         </div>
         <nav class="nav flex-column mt-3">
-            <a href="#" class="p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none text-white" style="background: rgba(255,255,255,0.1);">
+            <a href="#" class="nav-link-custom active p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none text-white" style="background: rgba(255,255,255,0.1);">
                 <i class="fas fa-th-large me-3"></i> <span class="sidebar-text">Dashboard</span>
             </a>
-            <button class="p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start" onclick="window.location.reload()">
+            
+            <div class="nav-link-custom p-3 mx-3 rounded-3 mb-2 text-white" data-bs-toggle="modal" data-bs-target="#modalRelatorio" onclick="prepararRelatorio()">
+                <i class="fas fa-file-contract me-3"></i> <span class="sidebar-text">Relatório Executivo</span>
+            </div>
+
+            <button class="nav-link-custom p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start" onclick="window.location.reload()">
                 <i class="fas fa-sync-alt me-3"></i> <span class="sidebar-text">Atualizar</span>
             </button>
         </nav>
@@ -85,12 +93,9 @@
         <header class="d-flex justify-content-between align-items-end mb-5">
             <div>
                 <span class="badge bg-primary-subtle text-primary mb-2 px-3 py-2">Módulo de Análise Qualitativa</span>
-                <h2 class="fw-bold text-dark-navy m-0">Dashboard</h2>
+                <h2 class="fw-bold text-dark-navy m-0">Consolidação de Dados</h2>
             </div>
             <div class="d-flex gap-3">
-                <button class="btn btn-primary fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalRelatorio" onclick="prepararRelatorio()">
-                    <i class="fas fa-file-contract me-2"></i> Relatório Executivo
-                </button>
                 <select id="stageFilter" class="form-select filter-select" onchange="applyFilter()"></select>
                 <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
             </div>
@@ -102,7 +107,7 @@
             <div class="col-md-4"><div class="card-stat"><small class="fw-bold">MÉDIA GLOBAL</small><h2 id="valMean" class="fw-bold m-0 mt-2 text-success">0.00</h2></div></div>
         </div>
 
-        <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
+        <ul class="nav nav-pills mb-4 gap-2" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-full">Divergente Detalhado</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-simp">Simplificado</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-bar">Tendência Acumulada</button></li>
@@ -112,28 +117,19 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-full">
                 <div class="chart-card" id="card-full">
-                    <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold dynamic-title">Distribuição Likert Completa</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-full', 'Divergente_Detalhado')"><i class="fas fa-download me-1"></i> PNG</button>
-                    </div>
+                    <h5 class="fw-bold dynamic-title mb-4">Divergente Detalhado</h5>
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-simp">
                 <div class="chart-card" id="card-simp">
-                    <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold dynamic-title">Agrupamento Positivo/Negativo</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-simp', 'Divergente_Simplificado')"><i class="fas fa-download me-1"></i> PNG</button>
-                    </div>
+                    <h5 class="fw-bold dynamic-title mb-4">Simplificado</h5>
                     <div class="chart-container"><canvas id="chartSimp"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-bar">
                 <div class="chart-card" id="card-bar">
-                    <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold dynamic-title">Análise de Frequência Relativa</h5>
-                        <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-bar', 'Barras_Acumuladas')"><i class="fas fa-download me-1"></i> PNG</button>
-                    </div>
+                    <h5 class="fw-bold dynamic-title mb-4">Tendência Acumulada</h5>
                     <div class="chart-container"><canvas id="chartBar"></canvas></div>
                 </div>
             </div>
@@ -153,56 +149,53 @@
         </div>
     </main>
 
-    <div class="modal fade" id="modalRelatorio" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalRelatorio" tabindex="-1">
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i> Pré-visualização do Relatório Executivo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Relatório Executivo Consolidado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <div id="reportContent" class="container shadow-sm border rounded">
-                        <div class="report-header d-flex justify-content-between align-items-center">
+                    <div id="reportContent" class="container bg-white shadow-sm p-5">
+                        <div class="report-header d-flex justify-content-between">
                             <div>
-                                <h1 class="fw-bold text-primary mb-0">Relatório Executivo</h1>
-                                <p class="text-muted mb-0">Consolidação de Desempenho Qualitativo - 2026</p>
+                                <h2 class="fw-bold text-primary">Relatório de Desempenho</h2>
+                                <p class="text-muted" id="rep-date"></p>
                             </div>
                             <div class="text-end">
-                                <p class="mb-0 fw-bold" id="rep-date"></p>
-                                <p class="small text-muted" id="rep-filter"></p>
+                                <p class="fw-bold mb-0">Analytics Pro v3.3</p>
+                                <p id="rep-filter-desc" class="small"></p>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h4 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i> 1. Identificação e Amostragem</h4>
-                            <div class="row g-3">
-                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Amostra (N)</h6><h3 id="rep-n" class="mb-0"></h3></div></div>
-                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Consistência (Alfa)</h6><h3 id="rep-alpha" class="mb-0"></h3></div></div>
-                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Média Global</h6><h3 id="rep-mean" class="mb-0"></h3></div></div>
-                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Eixo Analisado</h6><h3 id="rep-target" class="mb-0 text-truncate"></h3></div></div>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">1. Amostragem e Consistência</h5>
+                            <div class="row text-center">
+                                <div class="col-3 border-end"><h6>N</h6><h4 id="rep-n"></h4></div>
+                                <div class="col-3 border-end"><h6>Alfa</h6><h4 id="rep-alpha"></h4></div>
+                                <div class="col-3 border-end"><h6>Média</h6><h4 id="rep-mean"></h4></div>
+                                <div class="col-3"><h6>Eixo</h6><h4 id="rep-eixo"></h4></div>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h4 class="fw-bold mb-4"><i class="fas fa-chart-bar me-2"></i> 2. Visualização de Dados (Gráficos)</h4>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">2. Análise Gráfica</h5>
                             <div class="row g-4">
-                                <div class="col-12"><div class="p-3 border rounded"><h6>Distribuição Divergente Completa</h6><img id="img-full" class="img-fluid w-100"></div></div>
-                                <div class="col-6"><div class="p-3 border rounded"><h6>Visão Simplificada</h6><img id="img-simp" class="img-fluid w-100"></div></div>
-                                <div class="col-6"><div class="p-3 border rounded"><h6>Tendência Acumulada</h6><img id="img-bar" class="img-fluid w-100"></div></div>
+                                <div class="col-12"><div class="img-report-container"><h6>Distribuição Completa</h6><img id="img-full" class="img-fluid w-100"></div></div>
+                                <div class="col-6"><div class="img-report-container"><h6>Simplificado</h6><img id="img-simp" class="img-fluid w-100"></div></div>
+                                <div class="col-6"><div class="img-report-container"><h6>Tendência</h6><img id="img-bar" class="img-fluid w-100"></div></div>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h4 class="fw-bold mb-4"><i class="fas fa-table me-2"></i> 3. Matriz de Dados Detalhada</h4>
-                            <div id="rep-tables"></div>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">3. Matriz de Dados</h5>
+                            <div id="rep-table-area"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-success px-5 fw-bold" onclick="baixarRelatorioPDF()">
-                        <i class="fas fa-file-pdf me-2"></i> DOWNLOAD PDF
-                    </button>
+                    <button class="btn btn-success px-4 fw-bold" onclick="baixarRelatorioPDF()">BAIXAR PDF</button>
                 </div>
             </div>
         </div>
@@ -304,7 +297,7 @@
             };
 
             const commonOpt = {
-                indexAxis: 'y', maintainAspectRatio: false,
+                indexAxis: 'y', maintainAspectRatio: false, animation: false, // Desligar animação ajuda na captura
                 plugins: {
                     legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
                     datalabels: datalabelConfig
@@ -376,45 +369,43 @@
             });
         }
 
-        // FUNÇÕES DE PREPARAÇÃO DO RELATÓRIO
-        async function prepararRelatorio() {
-            document.getElementById('rep-date').innerText = new Date().toLocaleDateString('pt-BR');
-            document.getElementById('rep-filter').innerText = `Filtro: ${document.getElementById('stageFilter').value} | Eixo: ${document.getElementById('themeFilter').value}`;
+        // PREPARAÇÃO DO RELATÓRIO CORRIGIDA
+        function prepararRelatorio() {
+            document.getElementById('rep-date').innerText = "Gerado em: " + new Date().toLocaleString('pt-BR');
+            document.getElementById('rep-filter-desc').innerText = `Filtro: ${document.getElementById('stageFilter').value} | Eixo: ${document.getElementById('themeFilter').value}`;
+            
             document.getElementById('rep-n').innerText = document.getElementById('valN').innerText;
             document.getElementById('rep-alpha').innerText = document.getElementById('valAlpha').innerText;
             document.getElementById('rep-mean').innerText = document.getElementById('valMean').innerText;
-            document.getElementById('rep-target').innerText = document.getElementById('themeFilter').value;
+            document.getElementById('rep-eixo').innerText = document.getElementById('themeFilter').value;
 
-            // Converter Canvas para Imagens
-            document.getElementById('img-full').src = charts.chartFull.toBase64Image();
-            document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
-            document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
+            // Garantia de renderização antes da cópia
+            setTimeout(() => {
+                document.getElementById('img-full').src = charts.chartFull.toBase64Image();
+                document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
+                document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
+            }, 500);
 
-            // Clonar tabelas
-            const container = document.getElementById('rep-tables');
-            container.innerHTML = "";
-            const t1 = document.getElementById('table-eixos').cloneNode(true);
-            const t2 = document.getElementById('table-itens').cloneNode(true);
-            container.appendChild(t1);
-            container.appendChild(document.createElement("br"));
-            container.appendChild(t2);
+            const area = document.getElementById('rep-table-area');
+            area.innerHTML = "";
+            area.appendChild(document.getElementById('table-eixos').cloneNode(true));
+            area.appendChild(document.createElement("br"));
+            area.appendChild(document.getElementById('table-itens').cloneNode(true));
         }
 
         async function baixarRelatorioPDF() {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('reportContent');
-            const canvas = await html2canvas(element, { scale: 2 });
+            const canvas = await html2canvas(element, { scale: 2, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const width = pdf.internal.pageSize.getWidth();
+            const height = (canvas.height * width) / canvas.width;
             
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Relatorio_Executivo_${document.getElementById('themeFilter').value}.pdf`);
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            pdf.save("Relatorio_Executivo.pdf");
         }
 
-        // MANTIDO INALTERADO
         function calculateAlpha(data, keys) {
             if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
@@ -442,18 +433,8 @@
             stats.forEach(s => { bI.innerHTML += `<tr><td class="text-muted">#${s.id}</td><td class="small fw-medium">${s.texto}</td><td><b>${s.media}</b></td><td class="text-muted">${s.dp}</td></tr>`; });
         }
 
-        async function downloadPNG(id, defaultName) {
-            const filterValue = document.getElementById('themeFilter').value;
-            const fileName = filterValue !== 'ALL' ? filterValue : defaultName;
-            const element = document.getElementById(id);
-            const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-            const link = document.createElement('a');
-            link.download = `${fileName}.png`; link.href = canvas.toDataURL("image/png"); link.click();
-        }
-
         window.onload = loadData;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
