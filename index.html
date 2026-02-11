@@ -20,108 +20,63 @@
             --sidebar-width: 280px; 
             --primary: #4f46e5; 
             --dark-navy: #0f172a;
-            --success-tech: #10b981;
-            --danger-tech: #f43f5e;
-            --neutral-tech: #94a3b8;
             --bg-main: #f8fafc;
         }
 
-        body { 
-            background-color: var(--bg-main); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            overflow-x: hidden; 
-            color: #1e293b;
-        }
+        body { background-color: var(--bg-main); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
 
         #sidebar { 
-            width: var(--sidebar-width); 
-            height: 100vh; 
-            position: fixed; 
-            background: var(--dark-navy); 
-            color: white; 
-            z-index: 1050; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid rgba(255,255,255,0.05);
+            width: var(--sidebar-width); height: 100vh; position: fixed; 
+            background: var(--dark-navy); color: white; z-index: 1050; 
+            transition: all 0.4s; border-right: 1px solid rgba(255,255,255,0.05);
         }
         #sidebar.collapsed { width: 85px; }
         #sidebar.collapsed .sidebar-text { display: none; }
 
-        .main-content { 
-            margin-left: var(--sidebar-width); 
-            padding: 2.5rem; 
-            min-height: 100vh; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
+        .main-content { margin-left: var(--sidebar-width); padding: 2.5rem; transition: all 0.4s; }
         .main-content.expanded { margin-left: 85px; }
 
         .card-stat { 
-            background: white; 
-            border-radius: 16px; 
-            border: 1px solid #e2e8f0; 
-            padding: 1.5rem;
-            transition: transform 0.2s;
+            background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        .card-stat:hover { transform: translateY(-3px); }
-        .card-stat small { letter-spacing: 0.05em; color: #64748b; }
 
         .chart-card { 
-            background: white; 
-            border-radius: 20px; 
-            padding: 2rem; 
-            margin-bottom: 2rem; 
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; 
+            border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
         }
-        .chart-container { min-height: 650px; position: relative; }
+        .chart-container { min-height: 600px; position: relative; }
 
-        .nav-pills .nav-link {
-            color: #64748b;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 10px;
-            transition: 0.3s;
-        }
-        .nav-pills .nav-link.active {
-            background-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
+        .nav-pills .nav-link.active { background-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        .table-custom { border-collapse: separate; border-spacing: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
-        .table-custom thead { background: #f1f5f9; color: var(--dark-navy); }
-        .table-custom th { padding: 15px; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
-        .table-custom td { padding: 12px 15px; border-top: 1px solid #e2e8f0; }
+        .table-custom { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .table-custom thead { background: #f1f5f9; }
 
-        .filter-select { 
-            border-radius: 10px; 
-            border: 1px solid #e2e8f0; 
-            padding: 8px 16px; 
-            font-size: 0.9rem; 
-            background-color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
+        .filter-select { border-radius: 10px; border: 1px solid #e2e8f0; padding: 8px 16px; }
 
-        .btn-download { border-radius: 8px; font-weight: 600; }
+        /* Estilos Relatório Modal */
+        #reportContent { background: white; padding: 40px; }
+        .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 20px; }
+        .report-section { margin-bottom: 50px; page-break-inside: avoid; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     </style>
 </head>
 <body>
 
     <aside id="sidebar">
         <div class="p-4 d-flex align-items-center gap-3">
-            <div class="bg-primary rounded-3 p-2">
-                <i class="fas fa-chart-pie text-white"></i>
-            </div>
+            <div class="bg-primary rounded-3 p-2"><i class="fas fa-chart-pie text-white"></i></div>
             <span class="fs-5 fw-bold sidebar-text">Analytics Pro</span>
         </div>
         <nav class="nav flex-column mt-3">
-            <a href="#" class="nav-link-custom active p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none" style="color: white; background: rgba(255,255,255,0.1);">
+            <a href="#" class="p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none text-white" style="background: rgba(255,255,255,0.1);">
                 <i class="fas fa-th-large me-3"></i> <span class="sidebar-text">Dashboard</span>
             </a>
-            <button class="nav-link-custom p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start w-75" onclick="window.location.reload()">
+            <button class="p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start" onclick="window.location.reload()">
                 <i class="fas fa-sync-alt me-3"></i> <span class="sidebar-text">Atualizar</span>
             </button>
         </nav>
-        <button class="toggle-btn position-absolute bottom-0 w-100 p-4 border-0 bg-transparent text-white-50 text-start" onclick="toggleSidebar()">
+        <button class="position-absolute bottom-0 w-100 p-4 border-0 bg-transparent text-white-50 text-start" onclick="toggleSidebar()">
             <i class="fas fa-angle-double-left"></i> <span class="sidebar-text ms-3">Recolher</span>
         </button>
     </aside>
@@ -133,6 +88,9 @@
                 <h2 class="fw-bold text-dark-navy m-0">Consolidação de Dados</h2>
             </div>
             <div class="d-flex gap-3">
+                <button class="btn btn-primary fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalRelatorio" onclick="prepararRelatorio()">
+                    <i class="fas fa-file-contract me-2"></i> Relatório Executivo
+                </button>
                 <select id="stageFilter" class="form-select filter-select" onchange="applyFilter()"></select>
                 <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
             </div>
@@ -181,7 +139,6 @@
             </div>
             <div class="tab-pane fade" id="tab-rel">
                 <div class="chart-card">
-                    <button class="btn btn-dark btn-sm float-end" onclick="exportPDF()">PDF Executivo</button>
                     <h5 class="fw-bold mb-4">Estatística Descritiva</h5>
                     <table class="table table-custom mb-5" id="table-eixos">
                         <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead>
@@ -194,22 +151,69 @@
                 </div>
             </div>
         </div>
-
-        <footer class="mt-5 text-center text-muted small pb-4">
-            <p>© 2026 Analytics Pro | v3.2 Dynamic Titles</p>
-        </footer>
     </main>
+
+    <div class="modal fade" id="modalRelatorio" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i> Pré-visualização do Relatório Executivo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div id="reportContent" class="container shadow-sm border rounded">
+                        <div class="report-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="fw-bold text-primary mb-0">Relatório Executivo</h1>
+                                <p class="text-muted mb-0">Consolidação de Desempenho Qualitativo - 2026</p>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0 fw-bold" id="rep-date"></p>
+                                <p class="small text-muted" id="rep-filter"></p>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i> 1. Identificação e Amostragem</h4>
+                            <div class="row g-3">
+                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Amostra (N)</h6><h3 id="rep-n" class="mb-0"></h3></div></div>
+                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Consistência (Alfa)</h6><h3 id="rep-alpha" class="mb-0"></h3></div></div>
+                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Média Global</h6><h3 id="rep-mean" class="mb-0"></h3></div></div>
+                                <div class="col-3"><div class="p-3 border rounded text-center"><h6>Eixo Analisado</h6><h3 id="rep-target" class="mb-0 text-truncate"></h3></div></div>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-chart-bar me-2"></i> 2. Visualização de Dados (Gráficos)</h4>
+                            <div class="row g-4">
+                                <div class="col-12"><div class="p-3 border rounded"><h6>Distribuição Divergente Completa</h6><img id="img-full" class="img-fluid w-100"></div></div>
+                                <div class="col-6"><div class="p-3 border rounded"><h6>Visão Simplificada</h6><img id="img-simp" class="img-fluid w-100"></div></div>
+                                <div class="col-6"><div class="p-3 border rounded"><h6>Tendência Acumulada</h6><img id="img-bar" class="img-fluid w-100"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-table me-2"></i> 3. Matriz de Dados Detalhada</h4>
+                            <div id="rep-tables"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-success px-5 fw-bold" onclick="baixarRelatorioPDF()">
+                        <i class="fas fa-file-pdf me-2"></i> DOWNLOAD PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         Chart.register(ChartDataLabels);
         let charts = {};
         let rawData = { analise: [], categ: [], itens: {} };
 
-        const techColors = {
-            d_total: '#e11d48', d_parcial: '#fb7185',
-            neutral: '#e2e8f0',
-            c_parcial: '#60a5fa', c_total: '#2563eb'
-        };
+        const techColors = { d_total: '#e11d48', d_parcial: '#fb7185', neutral: '#e2e8f0', c_parcial: '#60a5fa', c_total: '#2563eb' };
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -242,11 +246,8 @@
         function applyFilter() {
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
-            
-            // ATUALIZAÇÃO DINÂMICA DOS TÍTULOS
             const titles = document.querySelectorAll('.dynamic-title');
             let labelTitle = "Resultados Gerais";
-            
             if (eixoSel !== 'ALL') {
                 const cat = rawData.categ.find(x => x.Eixo === eixoSel);
                 labelTitle = cat ? `${cat.Eixo}: ${cat.Tema}` : eixoSel;
@@ -303,8 +304,7 @@
             };
 
             const commonOpt = {
-                indexAxis: 'y',
-                maintainAspectRatio: false,
+                indexAxis: 'y', maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
                     datalabels: datalabelConfig
@@ -312,15 +312,13 @@
                 scales: {
                     x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v) + '%' } },
                     y: { 
-                        stacked: true, 
-                        grid: { display: false }, 
+                        stacked: true, grid: { display: false }, 
                         ticks: { 
                             font: { size: 11, weight: '600' },
                             callback: function(value) {
                                 let label = this.getLabelForValue(value);
                                 if (label.length > 50) {
-                                    let words = label.split(' ');
-                                    let lines = [], currentLine = '';
+                                    let words = label.split(' '), lines = [], currentLine = '';
                                     words.forEach(word => {
                                         if ((currentLine + word).length > 50) { lines.push(currentLine); currentLine = word + ' '; }
                                         else { currentLine += word + ' '; }
@@ -378,6 +376,45 @@
             });
         }
 
+        // FUNÇÕES DE PREPARAÇÃO DO RELATÓRIO
+        async function prepararRelatorio() {
+            document.getElementById('rep-date').innerText = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('rep-filter').innerText = `Filtro: ${document.getElementById('stageFilter').value} | Eixo: ${document.getElementById('themeFilter').value}`;
+            document.getElementById('rep-n').innerText = document.getElementById('valN').innerText;
+            document.getElementById('rep-alpha').innerText = document.getElementById('valAlpha').innerText;
+            document.getElementById('rep-mean').innerText = document.getElementById('valMean').innerText;
+            document.getElementById('rep-target').innerText = document.getElementById('themeFilter').value;
+
+            // Converter Canvas para Imagens
+            document.getElementById('img-full').src = charts.chartFull.toBase64Image();
+            document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
+            document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
+
+            // Clonar tabelas
+            const container = document.getElementById('rep-tables');
+            container.innerHTML = "";
+            const t1 = document.getElementById('table-eixos').cloneNode(true);
+            const t2 = document.getElementById('table-itens').cloneNode(true);
+            container.appendChild(t1);
+            container.appendChild(document.createElement("br"));
+            container.appendChild(t2);
+        }
+
+        async function baixarRelatorioPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('reportContent');
+            const canvas = await html2canvas(element, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`Relatorio_Executivo_${document.getElementById('themeFilter').value}.pdf`);
+        }
+
+        // MANTIDO INALTERADO
         function calculateAlpha(data, keys) {
             if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
@@ -407,22 +444,11 @@
 
         async function downloadPNG(id, defaultName) {
             const filterValue = document.getElementById('themeFilter').value;
-            // Se o filtro não for ALL, usa o nome do eixo, senão usa o nome padrão da aba
             const fileName = filterValue !== 'ALL' ? filterValue : defaultName;
-            
             const element = document.getElementById(id);
             const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
             const link = document.createElement('a');
             link.download = `${fileName}.png`; link.href = canvas.toDataURL("image/png"); link.click();
-        }
-
-        function exportPDF() {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.text("Relatório de Análise Analytics Pro", 14, 20);
-            doc.autoTable({ html: '#table-eixos', startY: 30, theme: 'grid' });
-            doc.addPage();
-            doc.autoTable({ html: '#table-itens', startY: 20, theme: 'striped' });
-            doc.save("Relatorio_Analytics.pdf");
         }
 
         window.onload = loadData;
