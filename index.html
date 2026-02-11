@@ -17,14 +17,9 @@
 
     <style>
         :root { 
-            --sidebar-width: 280px; 
-            --primary: #4f46e5; 
-            --dark-navy: #0f172a;
-            --bg-main: #f8fafc;
+            --sidebar-width: 280px; --primary: #4f46e5; --dark-navy: #0f172a; --bg-main: #f8fafc;
         }
-
         body { background-color: var(--bg-main); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; overflow-x: hidden; }
-
         #sidebar { 
             width: var(--sidebar-width); height: 100vh; position: fixed; 
             background: var(--dark-navy); color: white; z-index: 1050; 
@@ -32,37 +27,19 @@
         }
         #sidebar.collapsed { width: 85px; }
         #sidebar.collapsed .sidebar-text { display: none; }
-
         .main-content { margin-left: var(--sidebar-width); padding: 2.5rem; transition: all 0.4s; }
         .main-content.expanded { margin-left: 85px; }
-
-        .card-stat { 
-            background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .chart-card { 
-            background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; 
-            border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
-        }
+        .card-stat { background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .chart-card { background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04); }
         .chart-container { min-height: 600px; position: relative; }
-
         .nav-pills .nav-link.active { background-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-
         .table-custom { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 0.85rem; width: 100%; }
         .table-custom thead { background: #f1f5f9; }
-
-        .filter-select { border-radius: 10px; border: 1px solid #e2e8f0; padding: 8px 16px; }
-
-        /* Estilos Relatório Modal */
-        #reportContent { background: white; padding: 30px; color: #000; }
-        .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 15px; }
-        .report-section { margin-bottom: 40px; page-break-inside: avoid; }
-        .img-report-container { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .img-report-container h6 { font-weight: 700; color: #334155; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
-
         .nav-link-custom { cursor: pointer; transition: 0.3s; }
         .nav-link-custom:hover { background: rgba(255,255,255,0.1); }
+        #reportContent { background: white; padding: 30px; color: #000; }
+        .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 15px; }
+        .img-report-container { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -76,11 +53,9 @@
             <a href="#" class="nav-link-custom active p-3 mx-3 rounded-3 mb-2 d-block text-decoration-none text-white" style="background: rgba(255,255,255,0.1);">
                 <i class="fas fa-th-large me-3"></i> <span class="sidebar-text">Dashboard</span>
             </a>
-            
             <div class="nav-link-custom p-3 mx-3 rounded-3 mb-2 text-white" data-bs-toggle="modal" data-bs-target="#modalRelatorio" onclick="prepararRelatorio()">
                 <i class="fas fa-file-contract me-3"></i> <span class="sidebar-text">Relatório Executivo</span>
             </div>
-
             <button class="nav-link-custom p-3 mx-3 rounded-3 border-0 bg-transparent text-white-50 text-start" onclick="window.location.reload()">
                 <i class="fas fa-sync-alt me-3"></i> <span class="sidebar-text">Atualizar</span>
             </button>
@@ -93,19 +68,19 @@
     <main class="main-content" id="main-content">
         <header class="d-flex justify-content-between align-items-end mb-5">
             <div>
-                <span class="badge bg-primary-subtle text-primary mb-2 px-3 py-2">Módulo de Análise Qualitativa</span>
+                <span class="badge bg-primary-subtle text-primary mb-2 px-3 py-2">Módulo Qualitativo</span>
                 <h2 class="fw-bold text-dark-navy m-0">Consolidação de Dados</h2>
             </div>
             <div class="d-flex gap-3">
-                <select id="stageFilter" class="form-select filter-select" onchange="applyFilter()"></select>
-                <select id="themeFilter" class="form-select filter-select" onchange="applyFilter()"></select>
+                <select id="stageFilter" class="form-select border-0 shadow-sm" style="border-radius:10px" onchange="applyFilter()"></select>
+                <select id="themeFilter" class="form-select border-0 shadow-sm" style="border-radius:10px" onchange="applyFilter()"></select>
             </div>
         </header>
 
         <div class="row g-4 mb-5">
-            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">AMOSTRAGEM (N)</small><h2 id="valN" class="fw-bold m-0 mt-2">0</h2></div></div>
-            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">ALFA DE CRONBACH</small><h2 id="valAlpha" class="fw-bold m-0 mt-2 text-danger">0.00</h2></div></div>
-            <div class="col-md-4"><div class="card-stat"><small class="fw-bold">MÉDIA GLOBAL</small><h2 id="valMean" class="fw-bold m-0 mt-2 text-success">0.00</h2></div></div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold text-muted">AMOSTRAGEM (N)</small><h2 id="valN" class="fw-bold m-0 mt-2">0</h2></div></div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold text-muted">ALFA DE CRONBACH</small><h2 id="valAlpha" class="fw-bold m-0 mt-2 text-danger">0.00</h2></div></div>
+            <div class="col-md-4"><div class="card-stat"><small class="fw-bold text-muted">MÉDIA GLOBAL</small><h2 id="valMean" class="fw-bold m-0 mt-2 text-success">0.00</h2></div></div>
         </div>
 
         <ul class="nav nav-pills mb-4 gap-2" role="tablist">
@@ -118,33 +93,36 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-full">
                 <div class="chart-card" id="card-full">
-                    <h5 class="fw-bold dynamic-title mb-4">Divergente Detalhado</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold dynamic-title m-0">Divergente Detalhado</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="downloadPNG('chartFull', 'Divergente_Detalhado')"><i class="fas fa-download me-1"></i> PNG</button>
+                    </div>
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-simp">
                 <div class="chart-card" id="card-simp">
-                    <h5 class="fw-bold dynamic-title mb-4">Simplificado</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold dynamic-title m-0">Simplificado</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="downloadPNG('chartSimp', 'Simplificado')"><i class="fas fa-download me-1"></i> PNG</button>
+                    </div>
                     <div class="chart-container"><canvas id="chartSimp"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-bar">
                 <div class="chart-card" id="card-bar">
-                    <h5 class="fw-bold dynamic-title mb-4">Tendência Acumulada</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold dynamic-title m-0">Tendência Acumulada</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="downloadPNG('chartBar', 'Tendencia_Acumulada')"><i class="fas fa-download me-1"></i> PNG</button>
+                    </div>
                     <div class="chart-container"><canvas id="chartBar"></canvas></div>
                 </div>
             </div>
             <div class="tab-pane fade" id="tab-rel">
                 <div class="chart-card">
                     <h5 class="fw-bold mb-4">Estatística Descritiva</h5>
-                    <table class="table table-custom mb-5" id="table-eixos">
-                        <thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead>
-                        <tbody id="body-eixos"></tbody>
-                    </table>
-                    <table class="table table-custom" id="table-itens">
-                        <thead><tr><th>ID</th><th>Questão</th><th>Média</th><th>Desvio Padrão</th></tr></thead>
-                        <tbody id="body-itens"></tbody>
-                    </table>
+                    <table class="table table-custom mb-5" id="table-eixos"><thead><tr><th>Eixo</th><th>Tema</th><th>Alfa</th><th>Média</th></tr></thead><tbody id="body-eixos"></tbody></table>
+                    <table class="table table-custom" id="table-itens"><thead><tr><th>ID</th><th>Questão</th><th>Média</th><th>Desvio Padrão</th></tr></thead><tbody id="body-itens"></tbody></table>
                 </div>
             </div>
         </div>
@@ -154,67 +132,30 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Relatório Executivo Consolidado</h5>
+                    <h5 class="modal-title">Relatório Executivo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
                     <div id="reportContent" class="container bg-white shadow-sm p-5">
-                        <div class="report-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="fw-bold text-primary mb-1">Relatório de Desempenho Qualitativo</h2>
-                                <h5 class="text-secondary" id="rep-main-subtitle">Todas as Etapas e Eixos</h5>
-                            </div>
-                            <div class="text-end">
-                                <p class="fw-bold mb-0">Analytics Pro v3.4</p>
-                                <p id="rep-date" class="small text-muted mb-0"></p>
-                            </div>
+                        <div class="report-header d-flex justify-content-between">
+                            <div><h2 class="fw-bold text-primary mb-1">Análise de Desempenho</h2><h5 id="rep-sub" class="text-secondary"></h5></div>
+                            <div class="text-end"><p id="rep-date" class="small text-muted mb-0"></p></div>
                         </div>
-
+                        <div class="row g-3 mb-5 text-center">
+                            <div class="col-3 border-end"><h6>Amostra (N)</h6><h4 id="rep-n" class="fw-bold"></h4></div>
+                            <div class="col-3 border-end"><h6>Alfa</h6><h4 id="rep-alpha" class="fw-bold text-danger"></h4></div>
+                            <div class="col-3 border-end"><h6>Média</h6><h4 id="rep-mean" class="fw-bold text-success"></h4></div>
+                            <div class="col-3"><h6>Eixo</h6><h4 id="rep-eixo-val" class="fw-bold"></h4></div>
+                        </div>
                         <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">1. Amostragem e Consistência Global</h5>
-                            <div class="row text-center">
-                                <div class="col-3 border-end"><h6>Amostra (N)</h6><h4 id="rep-n" class="fw-bold"></h4></div>
-                                <div class="col-3 border-end"><h6>Consistência (Alfa)</h6><h4 id="rep-alpha" class="fw-bold text-danger"></h4></div>
-                                <div class="col-3 border-end"><h6>Média Global</h6><h4 id="rep-mean" class="fw-bold text-success"></h4></div>
-                                <div class="col-3"><h6>Referência</h6><h4 id="rep-eixo" class="fw-bold"></h4></div>
-                            </div>
+                            <div class="img-report-container"><h6>Divergente Detalhado</h6><img id="img-full" class="img-fluid w-100"></div>
+                            <div class="img-report-container"><h6>Análise Simplificada</h6><img id="img-simp" class="img-fluid w-100"></div>
+                            <div class="img-report-container"><h6>Tendência Acumulada</h6><img id="img-bar" class="img-fluid w-100"></div>
                         </div>
-
-                        <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">2. Análise Gráfica Dinâmica</h5>
-                            <div class="row g-4">
-                                <div class="col-12">
-                                    <div class="img-report-container">
-                                        <h6 id="rep-title-full">Distribuição Likert</h6>
-                                        <img id="img-full" class="img-fluid w-100">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="img-report-container">
-                                        <h6 id="rep-title-simp">Análise Simplificada</h6>
-                                        <img id="img-simp" class="img-fluid w-100">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="img-report-container">
-                                        <h6 id="rep-title-bar">Tendência de Respostas</h6>
-                                        <img id="img-bar" class="img-fluid w-100">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">3. Detalhamento Estatístico</h5>
-                            <div id="rep-table-area"></div>
-                        </div>
+                        <div id="rep-table-area"></div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success px-5 fw-bold" onclick="baixarRelatorioPDF()">
-                        <i class="fas fa-file-pdf me-2"></i> DOWNLOAD RELATÓRIO PDF
-                    </button>
-                </div>
+                <div class="modal-footer"><button class="btn btn-success px-5 fw-bold" onclick="baixarRelatorioPDF()">DOWNLOAD PDF</button></div>
             </div>
         </div>
     </div>
@@ -223,7 +164,6 @@
         Chart.register(ChartDataLabels);
         let charts = {};
         let rawData = { analise: [], categ: [], itens: {} };
-
         const techColors = { d_total: '#e11d48', d_parcial: '#fb7185', neutral: '#e2e8f0', c_parcial: '#60a5fa', c_total: '#2563eb' };
 
         function toggleSidebar() {
@@ -234,9 +174,7 @@
 
         async function loadData() {
             try {
-                const [resC, resI, resA] = await Promise.all([
-                    fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')
-                ]);
+                const [resC, resI, resA] = await Promise.all([fetch('categ3.json'), fetch('itens3.json'), fetch('analise3.json')]);
                 rawData.categ = await resC.json();
                 (await resI.json()).forEach(it => rawData.itens[String(parseInt(it.item))] = it.texto);
                 rawData.analise = await resA.json();
@@ -249,53 +187,42 @@
                 const tFilter = document.getElementById('themeFilter');
                 tFilter.innerHTML = '<option value="ALL">TODOS OS EIXOS</option>';
                 rawData.categ.forEach(c => tFilter.innerHTML += `<option value="${c.Eixo}">${c.Eixo} - ${c.Tema}</option>`);
-                
                 applyFilter();
-            } catch (e) { console.error("Erro na carga:", e); }
+            } catch (e) { console.error(e); }
         }
 
         function applyFilter() {
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
-            const titles = document.querySelectorAll('.dynamic-title');
-            
-            let labelTitle = "Resultados Gerais";
-            if (eixoSel !== 'ALL') {
-                const cat = rawData.categ.find(x => x.Eixo === eixoSel);
-                labelTitle = cat ? `${cat.Eixo}: ${cat.Tema}` : eixoSel;
-            }
-            titles.forEach(t => t.innerText = labelTitle);
+            let labelTitle = (eixoSel === 'ALL') ? "Resultados Gerais" : rawData.categ.find(x => x.Eixo === eixoSel).Tema;
+            document.querySelectorAll('.dynamic-title').forEach(t => t.innerText = (eixoSel !== 'ALL' ? eixoSel + ": " : "") + labelTitle);
 
-            let filteredRows = rawData.analise;
-            if (etapaSel !== 'ALL') filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
+            let filtered = rawData.analise;
+            if (etapaSel !== 'ALL') filtered = filtered.filter(r => String(r.etapa) === String(etapaSel));
             
-            let targetKeys = null;
-            if (eixoSel !== 'ALL') {
-                const categoria = rawData.categ.find(x => x.Eixo === eixoSel);
-                if (categoria) targetKeys = categoria.Questões.split(',').map(s => String(parseInt(s.trim())));
-            }
-            processar(filteredRows, targetKeys);
+            let keys = null;
+            if (eixoSel !== 'ALL') keys = rawData.categ.find(x => x.Eixo === eixoSel).Questões.split(',').map(s => String(parseInt(s.trim())));
+            
+            processar(filtered, keys);
         }
 
-        function processar(data, keys = null) {
+        function processar(data, keys) {
             const activeKeys = keys || Object.keys(rawData.analise[0]).filter(k => !isNaN(parseInt(k))).map(k => String(parseInt(k)));
             const N = data.length;
-            if (N === 0) return;
             let sumG = 0, countG = 0;
             const stats = activeKeys.map(k => {
                 let f = {1:0, 2:0, 3:0, 4:0, 5:0}, vls = [];
-                data.forEach(r => {
-                    const v = parseInt(r[k]);
-                    if(f[v] !== undefined) { f[v]++; sumG += v; countG++; vls.push(v); }
+                data.forEach(r => { 
+                    const v = parseInt(r[k]); 
+                    if(f[v]!==undefined){ f[v]++; sumG+=v; countG++; vls.push(v); }
                 });
-                const m = vls.length ? vls.reduce((a,b)=>a+b,0)/vls.length : 0;
-                const dp = vls.length ? Math.sqrt(vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length) : 0;
+                const m = vls.reduce((a,b)=>a+b,0)/vls.length || 0;
                 return {
                     id: k, texto: rawData.itens[k] || `Questão ${k}`,
                     dt: (f[1]/N*100).toFixed(1), d: (f[2]/N*100).toFixed(1), n: (f[3]/N*100).toFixed(1),
                     c: (f[4]/N*100).toFixed(1), ct: (f[5]/N*100).toFixed(1),
                     neg: ((f[1]+f[2])/N*100).toFixed(1), pos: ((f[4]+f[5])/N*100).toFixed(1),
-                    media: m.toFixed(2), dp: dp.toFixed(2)
+                    media: m.toFixed(2), dp: Math.sqrt(vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length || 0).toFixed(2)
                 };
             });
             document.getElementById('valN').innerText = N;
@@ -307,117 +234,85 @@
 
         function renderCharts(stats) {
             const labels = stats.map(s => s.id + ". " + s.texto);
-            const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
-            
-            const datalabelConfig = {
-                color: (context) => (context.dataset.label === 'Neutro' || context.dataset.label === 'N') ? '#000000' : '#ffffff',
-                font: { weight: '800', size: 13 },
-                formatter: (v) => Math.abs(v) >= 5 ? Math.abs(v).toFixed(0) + '%' : ''
-            };
-
             const commonOpt = {
                 indexAxis: 'y', maintainAspectRatio: false, animation: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
-                    datalabels: datalabelConfig
-                },
-                scales: {
-                    x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v) + '%' } },
-                    y: { 
-                        stacked: true, grid: { display: false }, 
-                        ticks: { 
-                            font: { size: 11, weight: '600' },
-                            callback: function(value) {
-                                let label = this.getLabelForValue(value);
-                                if (label.length > 50) {
-                                    let words = label.split(' '), lines = [], currentLine = '';
-                                    words.forEach(word => {
-                                        if ((currentLine + word).length > 50) { lines.push(currentLine); currentLine = word + ' '; }
-                                        else { currentLine += word + ' '; }
-                                    });
-                                    lines.push(currentLine); return lines;
-                                }
-                                return label;
-                            }
-                        } 
-                    }
-                }
+                plugins: { legend: { position: 'bottom' }, datalabels: { color: '#fff', font: {weight:'bold'}, formatter: v => Math.abs(v)>4 ? Math.abs(v).toFixed(0)+'%' : '' } },
+                scales: { x: { stacked: true, grid: { display: false }, ticks: { callback: v => Math.abs(v)+'%' } }, y: { stacked: true, grid: { display: false } } }
             };
 
-            charts.chartFull = new Chart(ctx('chartFull'), {
+            if(charts.chartFull) charts.chartFull.destroy();
+            charts.chartFull = new Chart(document.getElementById('chartFull'), {
                 type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'D. Total', data: stats.map(s => -s.dt), backgroundColor: techColors.d_total },
-                        { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: techColors.d_parcial },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
-                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
-                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
-                    ]
-                },
+                data: { labels, datasets: [
+                    { label: 'D.Total', data: stats.map(s => -s.dt), backgroundColor: techColors.d_total },
+                    { label: 'Discordo', data: stats.map(s => -s.d), backgroundColor: techColors.d_parcial },
+                    { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                    { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
+                    { label: 'C.Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
+                ]},
                 options: commonOpt
             });
 
-            charts.chartSimp = new Chart(ctx('chartSimp'), {
+            if(charts.chartSimp) charts.chartSimp.destroy();
+            charts.chartSimp = new Chart(document.getElementById('chartSimp'), {
                 type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: techColors.d_total },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
-                        { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: techColors.c_total }
-                    ]
-                },
+                data: { labels, datasets: [
+                    { label: 'Negativo', data: stats.map(s => -s.neg), backgroundColor: techColors.d_total },
+                    { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                    { label: 'Positivo', data: stats.map(s => s.pos), backgroundColor: techColors.c_total }
+                ]},
                 options: commonOpt
             });
 
-            charts.chartBar = new Chart(ctx('chartBar'), {
+            if(charts.chartBar) charts.chartBar.destroy();
+            charts.chartBar = new Chart(document.getElementById('chartBar'), {
                 type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'D. Total', data: stats.map(s => s.dt), backgroundColor: techColors.d_total },
-                        { label: 'Discordo', data: stats.map(s => s.d), backgroundColor: techColors.d_parcial },
-                        { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
-                        { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
-                        { label: 'C. Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
-                    ]
-                },
+                data: { labels, datasets: [
+                    { label: 'D.Total', data: stats.map(s => s.dt), backgroundColor: techColors.d_total },
+                    { label: 'Discordo', data: stats.map(s => s.d), backgroundColor: techColors.d_parcial },
+                    { label: 'Neutro', data: stats.map(s => s.n), backgroundColor: techColors.neutral },
+                    { label: 'Concordo', data: stats.map(s => s.c), backgroundColor: techColors.c_parcial },
+                    { label: 'C.Total', data: stats.map(s => s.ct), backgroundColor: techColors.c_total }
+                ]},
                 options: { ...commonOpt, indexAxis: 'x', scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
             });
         }
 
-        // PREPARAÇÃO DINÂMICA DO RELATÓRIO
+        async function downloadPNG(canvasId, name) {
+            const eixo = document.getElementById('themeFilter').value;
+            const finalName = eixo === 'ALL' ? name : eixo;
+            const originalCanvas = document.getElementById(canvasId);
+            
+            // Criar canvas temporário com fundo branco para o download
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = originalCanvas.width;
+            tempCanvas.height = originalCanvas.height;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            ctx.drawImage(originalCanvas, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = `${finalName}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        }
+
         function prepararRelatorio() {
-            const etapaTxt = document.getElementById('stageFilter').options[document.getElementById('stageFilter').selectedIndex].text;
-            const eixoTxt = document.getElementById('themeFilter').options[document.getElementById('themeFilter').selectedIndex].text;
-            
-            // Subtítulo e Textos Dinâmicos
-            document.getElementById('rep-main-subtitle').innerText = `${etapaTxt} | ${eixoTxt}`;
-            document.getElementById('rep-date').innerText = "Processado em: " + new Date().toLocaleString('pt-BR');
-            
+            const eSel = document.getElementById('themeFilter');
+            const etSel = document.getElementById('stageFilter');
+            document.getElementById('rep-sub').innerText = `${etSel.options[etSel.selectedIndex].text} | ${eSel.options[eSel.selectedIndex].text}`;
+            document.getElementById('rep-date').innerText = "Gerado em: " + new Date().toLocaleString();
             document.getElementById('rep-n').innerText = document.getElementById('valN').innerText;
             document.getElementById('rep-alpha').innerText = document.getElementById('valAlpha').innerText;
             document.getElementById('rep-mean').innerText = document.getElementById('valMean').innerText;
-            document.getElementById('rep-eixo').innerText = document.getElementById('themeFilter').value === 'ALL' ? 'Geral' : document.getElementById('themeFilter').value;
+            document.getElementById('rep-eixo-val').innerText = eSel.value === 'ALL' ? 'Geral' : eSel.value;
 
-            // Títulos dos Gráficos Dinâmicos
-            document.getElementById('rep-title-full').innerText = "Distribuição Likert Completa: " + eixoTxt;
-            document.getElementById('rep-title-simp').innerText = "Análise Simplificada (Pos/Neg): " + eixoTxt;
-            document.getElementById('rep-title-bar').innerText = "Tendência Acumulada: " + eixoTxt;
+            // Renderizar imagens para o modal
+            document.getElementById('img-full').src = charts.chartFull.toBase64Image();
+            document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
+            document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
 
-            // Captura forçada das imagens dos gráficos
-            // IMPORTANTE: update() garante que o canvas esteja pronto para extração
-            Object.values(charts).forEach(c => c.update());
-
-            setTimeout(() => {
-                document.getElementById('img-full').src = charts.chartFull.toBase64Image();
-                document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
-                document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
-            }, 600);
-
-            // Tabelas
             const area = document.getElementById('rep-table-area');
             area.innerHTML = "";
             area.appendChild(document.getElementById('table-eixos').cloneNode(true));
@@ -427,44 +322,33 @@
 
         async function baixarRelatorioPDF() {
             const { jsPDF } = window.jspdf;
-            const element = document.getElementById('reportContent');
-            const canvas = await html2canvas(element, { 
-                scale: 2, 
-                useCORS: true,
-                logging: false,
-                backgroundColor: "#ffffff"
-            });
-            const imgData = canvas.toDataURL('image/png');
+            const canvas = await html2canvas(document.getElementById('reportContent'), { scale: 2 });
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const width = pdf.internal.pageSize.getWidth();
-            const height = (canvas.height * width) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            const w = pdf.internal.pageSize.getWidth();
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, (canvas.height * w) / canvas.width);
             pdf.save(`Relatorio_Executivo_${document.getElementById('themeFilter').value}.pdf`);
         }
 
         function calculateAlpha(data, keys) {
-            if(keys.length <= 1 || data.length < 2) return "0.00";
+            if(keys.length <= 1) return "0.00";
             const k = keys.length;
             const itemVars = keys.map(key => {
-                const vals = data.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
-                const m = vals.reduce((a,b)=>a+b,0)/vals.length;
-                return vals.reduce((a,b)=>a+Math.pow(b-m,2),0)/vals.length;
+                const vls = data.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+                const m = vls.reduce((a,b)=>a+b,0)/vls.length;
+                return vls.reduce((a,b)=>a+Math.pow(b-m,2),0)/vls.length;
             });
-            const totals = data.map(r => keys.reduce((s,k) => s + (parseFloat(r[k])||0),0));
-            const tMean = totals.reduce((a,b)=>a+b,0)/totals.length;
-            const tVar = totals.reduce((a,b)=>a+Math.pow(b-tMean,2),0)/totals.length;
-            return tVar === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tVar))).toFixed(2);
+            const totals = data.map(r => keys.reduce((s,k) => s + (parseFloat(r[k])||0), 0));
+            const tM = totals.reduce((a,b)=>a+b,0)/totals.length;
+            const tV = totals.reduce((a,b)=>a+Math.pow(b-tM,2),0)/totals.length;
+            return tV === 0 ? "0.00" : ((k/(k-1))*(1-(itemVars.reduce((a,b)=>a+b,0)/tV))).toFixed(2);
         }
 
         function renderTables(data, stats) {
             const bE = document.getElementById('body-eixos'); bE.innerHTML = '';
             rawData.categ.forEach(c => {
                 const ks = c.Questões.split(',').map(s => String(parseInt(s.trim())));
-                const vls = [];
-                data.forEach(r => ks.forEach(k => { if(r[k]) vls.push(parseInt(r[k])); }));
-                const m = vls.length ? (vls.reduce((a,b)=>a+b,0)/vls.length).toFixed(2) : "0.00";
-                bE.innerHTML += `<tr><td class="fw-bold text-primary">${c.Eixo}</td><td>${c.Tema}</td><td><span class="badge bg-danger-subtle text-danger">${calculateAlpha(data, ks)}</span></td><td>${m}</td></tr>`;
+                const vls = []; data.forEach(r => ks.forEach(k => { if(r[k]) vls.push(parseInt(r[k])); }));
+                bE.innerHTML += `<tr><td class="fw-bold text-primary">${c.Eixo}</td><td>${c.Tema}</td><td><span class="badge bg-danger-subtle text-danger">${calculateAlpha(data, ks)}</span></td><td>${(vls.reduce((a,b)=>a+b,0)/vls.length || 0).toFixed(2)}</td></tr>`;
             });
             const bI = document.getElementById('body-itens'); bI.innerHTML = '';
             stats.forEach(s => { bI.innerHTML += `<tr><td class="text-muted">#${s.id}</td><td class="small fw-medium">${s.texto}</td><td><b>${s.media}</b></td><td class="text-muted">${s.dp}</td></tr>`; });
