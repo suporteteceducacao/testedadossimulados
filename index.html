@@ -58,7 +58,8 @@
         #reportContent { background: white; padding: 30px; color: #000; }
         .report-header { border-bottom: 3px solid var(--primary); margin-bottom: 30px; padding-bottom: 15px; }
         .report-section { margin-bottom: 40px; page-break-inside: avoid; }
-        .img-report-container { background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .img-report-container { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .img-report-container h6 { font-weight: 700; color: #334155; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
 
         .nav-link-custom { cursor: pointer; transition: 0.3s; }
         .nav-link-custom:hover { background: rgba(255,255,255,0.1); }
@@ -158,44 +159,61 @@
                 </div>
                 <div class="modal-body bg-light">
                     <div id="reportContent" class="container bg-white shadow-sm p-5">
-                        <div class="report-header d-flex justify-content-between">
+                        <div class="report-header d-flex justify-content-between align-items-center">
                             <div>
-                                <h2 class="fw-bold text-primary">Relatório de Desempenho</h2>
-                                <p class="text-muted" id="rep-date"></p>
+                                <h2 class="fw-bold text-primary mb-1">Relatório de Desempenho Qualitativo</h2>
+                                <h5 class="text-secondary" id="rep-main-subtitle">Todas as Etapas e Eixos</h5>
                             </div>
                             <div class="text-end">
-                                <p class="fw-bold mb-0">Analytics Pro v3.3</p>
-                                <p id="rep-filter-desc" class="small"></p>
+                                <p class="fw-bold mb-0">Analytics Pro v3.4</p>
+                                <p id="rep-date" class="small text-muted mb-0"></p>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">1. Amostragem e Consistência</h5>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">1. Amostragem e Consistência Global</h5>
                             <div class="row text-center">
-                                <div class="col-3 border-end"><h6>N</h6><h4 id="rep-n"></h4></div>
-                                <div class="col-3 border-end"><h6>Alfa</h6><h4 id="rep-alpha"></h4></div>
-                                <div class="col-3 border-end"><h6>Média</h6><h4 id="rep-mean"></h4></div>
-                                <div class="col-3"><h6>Eixo</h6><h4 id="rep-eixo"></h4></div>
+                                <div class="col-3 border-end"><h6>Amostra (N)</h6><h4 id="rep-n" class="fw-bold"></h4></div>
+                                <div class="col-3 border-end"><h6>Consistência (Alfa)</h6><h4 id="rep-alpha" class="fw-bold text-danger"></h4></div>
+                                <div class="col-3 border-end"><h6>Média Global</h6><h4 id="rep-mean" class="fw-bold text-success"></h4></div>
+                                <div class="col-3"><h6>Referência</h6><h4 id="rep-eixo" class="fw-bold"></h4></div>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">2. Análise Gráfica</h5>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">2. Análise Gráfica Dinâmica</h5>
                             <div class="row g-4">
-                                <div class="col-12"><div class="img-report-container"><h6>Distribuição Completa</h6><img id="img-full" class="img-fluid w-100"></div></div>
-                                <div class="col-6"><div class="img-report-container"><h6>Simplificado</h6><img id="img-simp" class="img-fluid w-100"></div></div>
-                                <div class="col-6"><div class="img-report-container"><h6>Tendência</h6><img id="img-bar" class="img-fluid w-100"></div></div>
+                                <div class="col-12">
+                                    <div class="img-report-container">
+                                        <h6 id="rep-title-full">Distribuição Likert</h6>
+                                        <img id="img-full" class="img-fluid w-100">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="img-report-container">
+                                        <h6 id="rep-title-simp">Análise Simplificada</h6>
+                                        <img id="img-simp" class="img-fluid w-100">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="img-report-container">
+                                        <h6 id="rep-title-bar">Tendência de Respostas</h6>
+                                        <img id="img-bar" class="img-fluid w-100">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="report-section">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">3. Matriz de Dados</h5>
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">3. Detalhamento Estatístico</h5>
                             <div id="rep-table-area"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success px-4 fw-bold" onclick="baixarRelatorioPDF()">BAIXAR PDF</button>
+                    <button class="btn btn-success px-5 fw-bold" onclick="baixarRelatorioPDF()">
+                        <i class="fas fa-file-pdf me-2"></i> DOWNLOAD RELATÓRIO PDF
+                    </button>
                 </div>
             </div>
         </div>
@@ -240,6 +258,7 @@
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
             const titles = document.querySelectorAll('.dynamic-title');
+            
             let labelTitle = "Resultados Gerais";
             if (eixoSel !== 'ALL') {
                 const cat = rawData.categ.find(x => x.Eixo === eixoSel);
@@ -297,7 +316,7 @@
             };
 
             const commonOpt = {
-                indexAxis: 'y', maintainAspectRatio: false, animation: false, // Desligar animação ajuda na captura
+                indexAxis: 'y', maintainAspectRatio: false, animation: false,
                 plugins: {
                     legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
                     datalabels: datalabelConfig
@@ -369,23 +388,36 @@
             });
         }
 
-        // PREPARAÇÃO DO RELATÓRIO CORRIGIDA
+        // PREPARAÇÃO DINÂMICA DO RELATÓRIO
         function prepararRelatorio() {
-            document.getElementById('rep-date').innerText = "Gerado em: " + new Date().toLocaleString('pt-BR');
-            document.getElementById('rep-filter-desc').innerText = `Filtro: ${document.getElementById('stageFilter').value} | Eixo: ${document.getElementById('themeFilter').value}`;
+            const etapaTxt = document.getElementById('stageFilter').options[document.getElementById('stageFilter').selectedIndex].text;
+            const eixoTxt = document.getElementById('themeFilter').options[document.getElementById('themeFilter').selectedIndex].text;
+            
+            // Subtítulo e Textos Dinâmicos
+            document.getElementById('rep-main-subtitle').innerText = `${etapaTxt} | ${eixoTxt}`;
+            document.getElementById('rep-date').innerText = "Processado em: " + new Date().toLocaleString('pt-BR');
             
             document.getElementById('rep-n').innerText = document.getElementById('valN').innerText;
             document.getElementById('rep-alpha').innerText = document.getElementById('valAlpha').innerText;
             document.getElementById('rep-mean').innerText = document.getElementById('valMean').innerText;
-            document.getElementById('rep-eixo').innerText = document.getElementById('themeFilter').value;
+            document.getElementById('rep-eixo').innerText = document.getElementById('themeFilter').value === 'ALL' ? 'Geral' : document.getElementById('themeFilter').value;
 
-            // Garantia de renderização antes da cópia
+            // Títulos dos Gráficos Dinâmicos
+            document.getElementById('rep-title-full').innerText = "Distribuição Likert Completa: " + eixoTxt;
+            document.getElementById('rep-title-simp').innerText = "Análise Simplificada (Pos/Neg): " + eixoTxt;
+            document.getElementById('rep-title-bar').innerText = "Tendência Acumulada: " + eixoTxt;
+
+            // Captura forçada das imagens dos gráficos
+            // IMPORTANTE: update() garante que o canvas esteja pronto para extração
+            Object.values(charts).forEach(c => c.update());
+
             setTimeout(() => {
                 document.getElementById('img-full').src = charts.chartFull.toBase64Image();
                 document.getElementById('img-simp').src = charts.chartSimp.toBase64Image();
                 document.getElementById('img-bar').src = charts.chartBar.toBase64Image();
-            }, 500);
+            }, 600);
 
+            // Tabelas
             const area = document.getElementById('rep-table-area');
             area.innerHTML = "";
             area.appendChild(document.getElementById('table-eixos').cloneNode(true));
@@ -396,14 +428,19 @@
         async function baixarRelatorioPDF() {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('reportContent');
-            const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+            const canvas = await html2canvas(element, { 
+                scale: 2, 
+                useCORS: true,
+                logging: false,
+                backgroundColor: "#ffffff"
+            });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const width = pdf.internal.pageSize.getWidth();
             const height = (canvas.height * width) / canvas.width;
             
             pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-            pdf.save("Relatorio_Executivo.pdf");
+            pdf.save(`Relatorio_Executivo_${document.getElementById('themeFilter').value}.pdf`);
         }
 
         function calculateAlpha(data, keys) {
