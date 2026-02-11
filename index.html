@@ -73,7 +73,6 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
         }
-        /* Altura dinâmica para acomodar textos longos que quebram linha */
         .chart-container { min-height: 650px; position: relative; }
 
         .nav-pills .nav-link {
@@ -156,7 +155,7 @@
             <div class="tab-pane fade show active" id="tab-full">
                 <div class="chart-card" id="card-full">
                     <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold">Distribuição Likert Completa</h5>
+                        <h5 class="fw-bold dynamic-title">Distribuição Likert Completa</h5>
                         <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-full', 'Divergente_Detalhado')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartFull"></canvas></div>
@@ -165,7 +164,7 @@
             <div class="tab-pane fade" id="tab-simp">
                 <div class="chart-card" id="card-simp">
                     <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold">Agrupamento Positivo/Negativo</h5>
+                        <h5 class="fw-bold dynamic-title">Agrupamento Positivo/Negativo</h5>
                         <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-simp', 'Divergente_Simplificado')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartSimp"></canvas></div>
@@ -174,7 +173,7 @@
             <div class="tab-pane fade" id="tab-bar">
                 <div class="chart-card" id="card-bar">
                     <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold">Análise de Frequência Relativa</h5>
+                        <h5 class="fw-bold dynamic-title">Análise de Frequência Relativa</h5>
                         <button class="btn btn-sm btn-light border" onclick="downloadPNG('card-bar', 'Barras_Acumuladas')"><i class="fas fa-download me-1"></i> PNG</button>
                     </div>
                     <div class="chart-container"><canvas id="chartBar"></canvas></div>
@@ -197,7 +196,7 @@
         </div>
 
         <footer class="mt-5 text-center text-muted small pb-4">
-            <p>© 2026 Analytics Pro | v3.1 Visual Update</p>
+            <p>© 2026 Analytics Pro | v3.2 Dynamic Titles</p>
         </footer>
     </main>
 
@@ -208,7 +207,7 @@
 
         const techColors = {
             d_total: '#e11d48', d_parcial: '#fb7185',
-            neutral: '#e2e8f0', // O cinza alvo para texto preto
+            neutral: '#e2e8f0',
             c_parcial: '#60a5fa', c_total: '#2563eb'
         };
 
@@ -243,8 +242,20 @@
         function applyFilter() {
             const etapaSel = document.getElementById('stageFilter').value;
             const eixoSel = document.getElementById('themeFilter').value;
+            
+            // ATUALIZAÇÃO DINÂMICA DOS TÍTULOS
+            const titles = document.querySelectorAll('.dynamic-title');
+            let labelTitle = "Resultados Gerais";
+            
+            if (eixoSel !== 'ALL') {
+                const cat = rawData.categ.find(x => x.Eixo === eixoSel);
+                labelTitle = cat ? `${cat.Eixo}: ${cat.Tema}` : eixoSel;
+            }
+            titles.forEach(t => t.innerText = labelTitle);
+
             let filteredRows = rawData.analise;
             if (etapaSel !== 'ALL') filteredRows = rawData.analise.filter(r => String(r.etapa).trim() === String(etapaSel).trim());
+            
             let targetKeys = null;
             if (eixoSel !== 'ALL') {
                 const categoria = rawData.categ.find(x => x.Eixo === eixoSel);
@@ -282,17 +293,12 @@
         }
 
         function renderCharts(stats) {
-            const labels = stats.map(s => s.texto);
+            const labels = stats.map(s => s.id + ". " + s.texto);
             const ctx = (id) => { if(charts[id]) charts[id].destroy(); return document.getElementById(id).getContext('2d'); };
             
-            // CONFIGURAÇÃO DOS VALORES (LABELS) DENTRO DAS BARRAS
             const datalabelConfig = {
-                color: (context) => {
-                    // SE FOR O DATASET DO MEIO (NEUTRO/CINZA), TEXTO PRETO
-                    const label = context.dataset.label;
-                    return (label === 'Neutro' || label === 'N') ? '#000000' : '#ffffff';
-                },
-                font: { weight: '800', size: 13 }, // Fonte aumentada e robusta
+                color: (context) => (context.dataset.label === 'Neutro' || context.dataset.label === 'N') ? '#000000' : '#ffffff',
+                font: { weight: '800', size: 13 },
                 formatter: (v) => Math.abs(v) >= 5 ? Math.abs(v).toFixed(0) + '%' : ''
             };
 
@@ -310,23 +316,16 @@
                         grid: { display: false }, 
                         ticks: { 
                             font: { size: 11, weight: '600' },
-                            // QUEBRA DE TEXTO AUTOMÁTICA
                             callback: function(value) {
                                 let label = this.getLabelForValue(value);
-                                if (label.length > 40) {
+                                if (label.length > 50) {
                                     let words = label.split(' ');
-                                    let lines = [];
-                                    let currentLine = '';
+                                    let lines = [], currentLine = '';
                                     words.forEach(word => {
-                                        if ((currentLine + word).length > 40) {
-                                            lines.push(currentLine);
-                                            currentLine = word + ' ';
-                                        } else {
-                                            currentLine += word + ' ';
-                                        }
+                                        if ((currentLine + word).length > 50) { lines.push(currentLine); currentLine = word + ' '; }
+                                        else { currentLine += word + ' '; }
                                     });
-                                    lines.push(currentLine);
-                                    return lines;
+                                    lines.push(currentLine); return lines;
                                 }
                                 return label;
                             }
@@ -379,7 +378,6 @@
             });
         }
 
-        // --- FUNÇÕES DE APOIO (MANTIDAS INALTERADAS) ---
         function calculateAlpha(data, keys) {
             if(keys.length <= 1 || data.length < 2) return "0.00";
             const k = keys.length;
@@ -407,11 +405,15 @@
             stats.forEach(s => { bI.innerHTML += `<tr><td class="text-muted">#${s.id}</td><td class="small fw-medium">${s.texto}</td><td><b>${s.media}</b></td><td class="text-muted">${s.dp}</td></tr>`; });
         }
 
-        async function downloadPNG(id, name) {
+        async function downloadPNG(id, defaultName) {
+            const filterValue = document.getElementById('themeFilter').value;
+            // Se o filtro não for ALL, usa o nome do eixo, senão usa o nome padrão da aba
+            const fileName = filterValue !== 'ALL' ? filterValue : defaultName;
+            
             const element = document.getElementById(id);
             const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
             const link = document.createElement('a');
-            link.download = `${name}.png`; link.href = canvas.toDataURL("image/png"); link.click();
+            link.download = `${fileName}.png`; link.href = canvas.toDataURL("image/png"); link.click();
         }
 
         function exportPDF() {
